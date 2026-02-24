@@ -55,6 +55,7 @@ const NodeCountField = ({
   const onButtonPress = (plus: boolean) => () => {
     const newValue = plus ? field.value + 1 : field.value - 1;
     helpers.setValue(newValue);
+    helpers.setTouched(true, false);
   };
 
   const numberInput = (
@@ -63,7 +64,10 @@ const NodeCountField = ({
       min={minNodes}
       max={maxNodesPerZone}
       onMinus={onButtonPress(false)}
-      onChange={(event) => helpers.setValue(Number((event.target as HTMLInputElement).value))}
+      onChange={(event) => {
+        helpers.setValue(Number((event.target as HTMLInputElement).value));
+        helpers.setTouched(true, false);
+      }}
       onPlus={onButtonPress(true)}
       inputAriaLabel="Compute nodes"
       minusBtnAriaLabel="Decrement compute nodes"

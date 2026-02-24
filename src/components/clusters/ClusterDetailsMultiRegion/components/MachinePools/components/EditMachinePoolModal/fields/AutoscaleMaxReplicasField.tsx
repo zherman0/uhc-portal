@@ -53,6 +53,7 @@ const AutoscaleMaxReplicasField = ({
   const onButtonPress = (plus: boolean) => () => {
     const newValue = plus ? field.value + 1 : field.value - 1;
     helpers.setValue(newValue);
+    helpers.setTouched(true, false);
   };
 
   return (
@@ -83,7 +84,10 @@ const AutoscaleMaxReplicasField = ({
         value={field.value}
         onPlus={onButtonPress(true)}
         onMinus={onButtonPress(false)}
-        onChange={(e) => helpers.setValue(Number((e.target as HTMLInputElement).value))}
+        onChange={(e) => {
+          helpers.setValue(Number((e.target as HTMLInputElement).value));
+          helpers.setTouched(true, false);
+        }}
         id={fieldId}
         min={minNodes || 1}
         max={maxNodes}
