@@ -51,9 +51,7 @@ const AutoscaleMinReplicasField = ({
         max={maxNodes}
         inputProps={{
           onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
-            // strips unnecessary leading zeros
-            // eslint-disable-next-line no-param-reassign
-            event.target.value = Number(event.target.value).toString();
+            helpers.setValue(Number(event.target.value));
             field.onBlur(event);
           },
         }}
