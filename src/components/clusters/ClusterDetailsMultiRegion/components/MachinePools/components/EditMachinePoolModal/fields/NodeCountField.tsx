@@ -7,7 +7,6 @@ import { noQuotaTooltip } from '~/common/helpers';
 import links from '~/common/installLinks.mjs';
 import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
-import { validateNumericInput } from '~/common/validators';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import ExternalLink from '~/components/common/ExternalLink';
@@ -24,33 +23,21 @@ type NodeCountFieldProps = {
   cluster: ClusterFromSubscription;
 };
 
-const validateNodeCount = (value: number, min: number, max: number): string | undefined => {
-  if (Number.isNaN(value)) {
-    return 'Please enter a valid number.';
-  }
-  return validateNumericInput(value.toString(), { min, max });
-};
-
 const NodeCountField = ({
   minNodesRequired,
   maxNodes,
   cluster,
   mpAvailZones,
 }: NodeCountFieldProps) => {
+  const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
 
-  // For multizone, min/max are per-zone values (maxNodes is already adjusted by getMaxNodeCountForMachinePool)
   const minNodes = isMultizoneMachinePool ? minNodesRequired / 3 : minNodesRequired;
   const maxNodesPerZone = isMultizoneMachinePool ? maxNodes / 3 : maxNodes;
 
-  const [field, meta, helpers] = useField<number>({
-    name: fieldId,
-    validate: (value) => validateNodeCount(value, minNodes, maxNodesPerZone),
-  });
-
   const notEnoughQuota = maxNodes < minNodesRequired;
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
-  const displayError = meta.touched ? meta.error : undefined;
+  const { touched, error } = meta;
 
   const onButtonPress = (plus: boolean) => () => {
     const newValue = plus ? field.value + 1 : field.value - 1;
@@ -116,8 +103,8 @@ const NodeCountField = ({
         numberInput
       )}
 
-      <FormGroupHelperText touched={!!displayError} error={displayError}>
-        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value * 3}`}
+      <FormGroupHelperText touched={touched} error={error}>
+        {isMultizoneMachinePool && !(touched && error) && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );

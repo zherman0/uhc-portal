@@ -416,7 +416,19 @@ const useMachinePoolFormik = ({
                 .required('Compute node instance type is a required field.')
             : Yup.object(),
           isWindowsLicenseIncluded: Yup.boolean(),
-          replicas: Yup.number(),
+          replicas: !values.autoscaling
+            ? Yup.number()
+                .test(
+                  'whole-number',
+                  'Decimals are not allowed. Enter a whole number.',
+                  Number.isInteger,
+                )
+                .min(minNodes, `Input cannot be less than ${minNodes}.`)
+                .max(
+                  isMachinePoolMz ? maxNodes / 3 : maxNodes,
+                  `Input cannot be more than ${isMachinePoolMz ? maxNodes / 3 : maxNodes}.`,
+                )
+            : Yup.number(),
           maxSurge: Yup.number()
             .typeError('Max surge must be a number. Please provide a valid numeric value.')
             .nullable()

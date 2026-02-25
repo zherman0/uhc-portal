@@ -3,7 +3,6 @@ import { useField } from 'formik';
 
 import { FormGroup, NumberInput } from '@patternfly/react-core';
 
-import { validateNumericInput } from '~/common/validators';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import { ClusterFromSubscription } from '~/types/types';
@@ -17,30 +16,19 @@ type AutoscaleMinReplicasFieldProps = {
 
 const fieldId = 'autoscaleMin';
 
-const validateAutoscaleMin = (value: number, min: number, max: number): string | undefined => {
-  if (Number.isNaN(value)) {
-    return 'Please enter a valid number.';
-  }
-  return validateNumericInput(value.toString(), { min, max });
-};
-
 const AutoscaleMinReplicasField = ({
   cluster,
   minNodes: initMinNodes,
   mpAvailZones,
   maxNodes: initMaxNodes,
 }: AutoscaleMinReplicasFieldProps) => {
+  const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
 
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
   const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
 
-  const [field, meta, helpers] = useField<number>({
-    name: fieldId,
-    validate: (value) => validateAutoscaleMin(value, minNodes || 1, maxNodes),
-  });
-
-  const displayError = meta.touched ? meta.error : undefined;
+  const { touched, error } = meta;
 
   const onButtonPress = (plus: boolean) => () => {
     const newValue = plus ? field.value + 1 : field.value - 1;
@@ -71,8 +59,8 @@ const AutoscaleMinReplicasField = ({
         }}
       />
 
-      <FormGroupHelperText touched={!!displayError} error={displayError}>
-        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value * 3}`}
+      <FormGroupHelperText touched={touched} error={error}>
+        {isMultizoneMachinePool && !(touched && error) && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );

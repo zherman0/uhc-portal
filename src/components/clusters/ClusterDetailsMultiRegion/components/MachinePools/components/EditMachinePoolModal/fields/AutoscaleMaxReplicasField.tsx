@@ -6,7 +6,6 @@ import { FormGroup, NumberInput } from '@patternfly/react-core';
 import links from '~/common/installLinks.mjs';
 import { normalizeProductID } from '~/common/normalize';
 import { normalizedProducts } from '~/common/subscriptionTypes';
-import { validateNumericInput } from '~/common/validators';
 import { isMPoolAz } from '~/components/clusters/ClusterDetailsMultiRegion/clusterDetailsHelper';
 import { isHypershiftCluster } from '~/components/clusters/common/clusterStates';
 import { computeNodeHintText } from '~/components/clusters/common/ScaleSection/AutoScaleSection/AutoScaleHelper';
@@ -24,31 +23,20 @@ type AutoscaleMaxReplicasFieldProps = {
 
 const fieldId = 'autoscaleMax';
 
-const validateAutoscaleMax = (value: number, min: number, max: number): string | undefined => {
-  if (Number.isNaN(value)) {
-    return 'Please enter a valid number.';
-  }
-  return validateNumericInput(value.toString(), { min, max });
-};
-
 const AutoscaleMaxReplicasField = ({
   minNodes: initMinNodes,
   cluster,
   maxNodes: initMaxNodes,
   mpAvailZones,
 }: AutoscaleMaxReplicasFieldProps) => {
+  const [field, meta, helpers] = useField<number>(fieldId);
   const isMultizoneMachinePool = isMPoolAz(cluster, mpAvailZones);
   const isRosa = normalizeProductID(cluster.product?.id) === normalizedProducts.ROSA;
 
   const minNodes = isMultizoneMachinePool ? initMinNodes / 3 : initMinNodes;
   const maxNodes = isMultizoneMachinePool ? initMaxNodes / 3 : initMaxNodes;
 
-  const [field, meta, helpers] = useField<number>({
-    name: fieldId,
-    validate: (value) => validateAutoscaleMax(value, minNodes || 1, maxNodes),
-  });
-
-  const displayError = meta.touched ? meta.error : undefined;
+  const { touched, error } = meta;
 
   const onButtonPress = (plus: boolean) => () => {
     const newValue = plus ? field.value + 1 : field.value - 1;
@@ -101,8 +89,8 @@ const AutoscaleMaxReplicasField = ({
         }}
       />
 
-      <FormGroupHelperText touched={!!displayError} error={displayError}>
-        {isMultizoneMachinePool && !displayError && `x 3 zones = ${field.value * 3}`}
+      <FormGroupHelperText touched={touched} error={error}>
+        {isMultizoneMachinePool && !(touched && error) && `x 3 zones = ${field.value * 3}`}
       </FormGroupHelperText>
     </FormGroup>
   );
