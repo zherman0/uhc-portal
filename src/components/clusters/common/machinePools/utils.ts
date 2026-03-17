@@ -229,11 +229,6 @@ export type GetMaxNodeCountForMachinePoolParams = {
 };
 
 /**
- * @deprecated Use getMaxNodeCountForMachinePool instead
- */
-export type getNodeOptionsType = GetMaxNodeCountForMachinePoolParams;
-
-/**
  * Gets the maximum node count for a machine pool based on cluster configuration and quota.
  * Used in Day 2 operations (editing existing clusters).
  *
@@ -300,11 +295,6 @@ export const getMaxNodeCountForMachinePool = ({
     increment,
   });
 };
-
-/**
- * @deprecated Use getMaxNodeCountForMachinePool instead
- */
-export const getNodeOptions = getMaxNodeCountForMachinePool;
 
 export const getWorkerNodeVolumeSizeMinGiB = (isHypershift: boolean): number =>
   isHypershift ? workerNodeVolumeSizeMinGiBHcp : workerNodeVolumeSizeMinGiB;
