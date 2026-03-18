@@ -16,9 +16,13 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import docLinks from '~/common/docLinks.mjs';
 import clusterStates from '~/components/clusters/common/clusterStates';
+import { constants } from '~/components/clusters/common/CreateOSDFormConstants';
 import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
+import ExternalLink from '~/components/common/ExternalLink';
+import PopoverHint from '~/components/common/PopoverHint';
 import { useMutateChannel } from '~/queries/ChannelEditQueries/useMutateChannel';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { Cluster } from '~/types/clusters_mgmt.v1';
@@ -150,7 +154,18 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
         />
       )}
       <DescriptionListGroup>
-        <DescriptionListTerm>Channel</DescriptionListTerm>
+        <DescriptionListTerm>
+          Channel
+          <PopoverHint
+            iconClassName="pf-v6-u-ml-sm"
+            hint={
+              <>
+                {constants.channelHint}{' '}
+                <ExternalLink href={docLinks.OCP_UPDATE_CHANNELS}>Learn more</ExternalLink>
+              </>
+            }
+          />
+        </DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelName(channel ?? '')}
           {canEdit &&
