@@ -1,0 +1,171 @@
+import React from 'react';
+import { Field, Formik } from 'formik';
+
+import {
+  Button,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Spinner,
+  StackItem,
+  Title,
+} from '@patternfly/react-core';
+
+import clusterStates from '~/components/clusters/common/clusterStates';
+import EditButton from '~/components/common/EditButton';
+import ErrorBox from '~/components/common/ErrorBox';
+import { useMutateChannel } from '~/queries/ChannelEditQueries/useMutateChannel';
+import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
+import { Cluster } from '~/types/clusters_mgmt.v1';
+
+import { formatChannelName } from '../../../clusterDetailsHelper';
+
+import { ChannelSelect } from './ChannelSelect';
+import { useGetChannelsData } from './useGetChannelsData';
+
+type ChannelEditModalProps = {
+  clusterID: string;
+  isOpen: boolean;
+  onClose: () => void;
+  channel: string;
+  optionsDropdownData: {
+    value: string;
+    label: string;
+  }[];
+};
+
+type ChannelEditProps = {
+  clusterID: string;
+  channel: string;
+  cluster: CanEditCluster;
+};
+
+export interface CanEditCluster extends Cluster {
+  canEdit: boolean;
+}
+
+const ChannelEditModal = ({
+  clusterID,
+  isOpen,
+  onClose,
+  channel,
+  optionsDropdownData,
+}: ChannelEditModalProps) => {
+  const { mutate, isError, error, isPending } = useMutateChannel();
+
+  const handleClose = () => {
+    onClose();
+  };
+  return isOpen ? (
+    <Formik
+      initialValues={{ channel }}
+      onSubmit={(values: { channel: string }) => {
+        const { channel: newChannel } = values;
+        mutate(
+          { clusterID, channel: newChannel },
+          {
+            onSuccess: () => {
+              handleClose();
+              invalidateClusterDetailsQueries();
+            },
+          },
+        );
+      }}
+    >
+      {(formik) => (
+        <Modal
+          id="edit-channel-modal"
+          title="Edit channel"
+          variant={ModalVariant.small}
+          onClose={handleClose}
+          isOpen={isOpen}
+          aria-labelledby="edit-channel-modal"
+          aria-describedby="modal-box-edit-channel"
+        >
+          <ModalHeader>
+            <Title headingLevel="h1">Edit channel</Title>
+          </ModalHeader>
+          <ModalBody>
+            {isError && (
+              <StackItem>
+                <ErrorBox
+                  message={error?.error?.errorMessage ? error.error.errorMessage : ''}
+                  response={{
+                    operationID: error?.error?.operationID,
+                  }}
+                />
+              </StackItem>
+            )}
+            <Field
+              fieldId="channel"
+              label="Channel"
+              name="channel"
+              component={ChannelSelect}
+              optionsDropdownData={optionsDropdownData}
+              input={{
+                ...formik.getFieldProps('channel'),
+                onChange: (value: string) => formik.setFieldValue('channel', value),
+              }}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              key="confirm"
+              variant="primary"
+              onClick={formik.submitForm}
+              isDisabled={isPending || !formik.dirty}
+            >
+              Save
+            </Button>
+            <Button key="cancel" variant="link" onClick={handleClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
+    </Formik>
+  ) : null;
+};
+
+export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) => {
+  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const { canEdit } = cluster;
+  const isClusterReady = cluster.state === clusterStates.ready;
+  const { availableDropdownChannels, isLoading } = useGetChannelsData(cluster, canEdit);
+
+  return (
+    <>
+      {isModalOpen && (
+        <ChannelEditModal
+          clusterID={clusterID}
+          isOpen={isModalOpen}
+          optionsDropdownData={availableDropdownChannels}
+          onClose={() => setIsModalOpen(false)}
+          channel={channel ?? ''}
+        />
+      )}
+      <DescriptionListGroup>
+        <DescriptionListTerm>Channel</DescriptionListTerm>
+        <DescriptionListDescription>
+          {formatChannelName(channel ?? '')}
+          {canEdit &&
+            (isLoading ? (
+              <Spinner size="sm" aria-label="Loading..." />
+            ) : (
+              <EditButton
+                data-testid="channelModal"
+                ariaLabel="editChannelBtn"
+                onClick={() => setIsModalOpen(true)}
+                isAriaDisabled={!canEdit || isLoading || !isClusterReady}
+              />
+            ))}
+        </DescriptionListDescription>
+      </DescriptionListGroup>
+    </>
+  );
+};

@@ -23,6 +23,7 @@ import PopoverHint from '../../../../common/PopoverHint';
 import ClusterTypeLabel from '../../../common/ClusterTypeLabel';
 import InfrastructureModelLabel from '../../../common/InfrastructureModelLabel';
 
+import { ChannelEdit } from './ChannelEdit/ChannelEdit';
 import { ChannelGroupEdit } from './ChannelGroupEdit/ChannelGroupEdit';
 import ClusterVersionInfo from './ClusterVersionInfo';
 
@@ -166,6 +167,9 @@ function DetailsLeft({
           cluster={cluster}
           isROSA={isROSA}
         />
+      )}
+      {!isArchived && !isDeprovisioned && !isDisconnected && (
+        <ChannelEdit clusterID={clusterID} channel={cluster?.channel} cluster={cluster} />
       )}
       <DescriptionListGroup>
         <DescriptionListTerm>
