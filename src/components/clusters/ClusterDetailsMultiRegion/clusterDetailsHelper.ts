@@ -105,6 +105,8 @@ const formatChannelGroupName = (channelGroup: string) => {
   return channelGroup ? channelGroup.charAt(0).toUpperCase() + channelGroup.slice(1) : 'N/A';
 };
 
+const formatChannelName = (channel: string) => (channel && channel.trim() !== '' ? channel : 'N/A');
+
 export {
   eventTypes,
   getSubscriptionLastReconciledDate,
@@ -119,4 +121,5 @@ export {
   isReadyForIdpActions,
   isReadyForRoleAccessActions,
   formatChannelGroupName,
+  formatChannelName,
 };
