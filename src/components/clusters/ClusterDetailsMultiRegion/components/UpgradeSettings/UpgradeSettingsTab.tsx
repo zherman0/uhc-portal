@@ -80,7 +80,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   const isHypershift = isHypershiftCluster(cluster);
   const clusterVersion = getClusterVersion(cluster);
   const isRosa = isROSA(cluster);
-
+  const isYStreamEnabled = true; // useFeatureGate(Y_STREAM_ENABLED);
   const { data: schedulesData, isLoading: isGetShcedulesLoading } = useGetSchedules(
     clusterID,
     isHypershift,
@@ -488,26 +488,30 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               )}
             </CardBody>
           </Card>
-          <Card>
-            <CardTitle>Channel settings</CardTitle>
-            <CardBody>
-              <Stack hasGutter>
-                <DescriptionList isCompact>
-                  <DescriptionListGroup>
-                    <DescriptionListTerm>Current channel</DescriptionListTerm>
-                    <DescriptionListDescription>
-                      show current channel here
-                    </DescriptionListDescription>
-                  </DescriptionListGroup>
-                </DescriptionList>
-                {showUpdateChannelGroupButton ? (
-                  <UpgradeSettingChannelModal
-                    disableReason={typeof notReadyReason === 'string' ? notReadyReason : undefined}
-                  />
-                ) : null}
-              </Stack>
-            </CardBody>
-          </Card>
+          {isYStreamEnabled && (
+            <Card>
+              <CardTitle>Channel settings</CardTitle>
+              <CardBody>
+                <Stack hasGutter>
+                  <DescriptionList isCompact>
+                    <DescriptionListGroup>
+                      <DescriptionListTerm>Current channel</DescriptionListTerm>
+                      <DescriptionListDescription>
+                        show current channel here
+                      </DescriptionListDescription>
+                    </DescriptionListGroup>
+                  </DescriptionList>
+                  {showUpdateChannelGroupButton ? (
+                    <UpgradeSettingChannelModal
+                      disableReason={
+                        typeof notReadyReason === 'string' ? notReadyReason : undefined
+                      }
+                    />
+                  ) : null}
+                </Stack>
+              </CardBody>
+            </Card>
+          )}
         </Stack>
       </GridItem>
     </Grid>
