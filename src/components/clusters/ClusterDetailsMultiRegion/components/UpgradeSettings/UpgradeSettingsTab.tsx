@@ -9,11 +9,16 @@ import {
   CardBody,
   CardFooter,
   CardTitle,
+  DescriptionList,
+  DescriptionListDescription,
+  DescriptionListGroup,
+  DescriptionListTerm,
   Flex,
   FlexItem,
   Form,
   Grid,
   GridItem,
+  Stack,
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
@@ -51,6 +56,8 @@ import UpgradeSettingsFields from '../../../common/Upgrades/UpgradeSettingsField
 import UpgradeStatus from '../../../common/Upgrades/UpgradeStatus';
 import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitoringSectionMultiRegion';
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
+
+import { UpgradeSettingChannelModal } from './UpgradeSettingChannelModal';
 
 interface UpgradeSettingsFormValues {
   upgrade_policy: 'automatic' | 'manual';
@@ -217,7 +224,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
     (availableUpgrades?.length || 0) > 0 &&
     !scheduledUpgrade &&
     !clusterHibernating;
-
+  const showUpdateChannelGroupButton = true;
   const isPending =
     isReplaceSchedulePending ||
     isEditSchedulesPending ||
@@ -447,39 +454,61 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
         )}
       </Formik>
       <GridItem lg={3} md={12} className="ocm-c-upgrade-monitoring-top">
-        <Card>
-          <CardTitle>Update status</CardTitle>
-          <CardBody>
-            <UpgradeStatus
-              clusterID={clusterID}
-              canEdit={canEdit}
-              clusterVersion={clusterVersion}
-              scheduledUpgrade={scheduledUpgrade}
-              availableUpgrades={availableUpgrades || ([] as any)}
-              schedules={schedules}
-              cluster={cluster}
-              isHypershift={isHypershift}
-              isSTSEnabled={cluster?.aws?.sts?.enabled}
-              unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
-            />
-            {showUpdateButton && (
-              <ButtonWithTooltip
-                variant="secondary"
-                onClick={() => {
-                  dispatch(
-                    openModal(modals.UPGRADE_WIZARD, {
-                      clusterName: getClusterName(cluster),
-                      subscriptionID: cluster?.subscription?.id,
-                    }),
-                  );
-                }}
-                disableReason={notReadyReason}
-              >
-                Update
-              </ButtonWithTooltip>
-            )}
-          </CardBody>
-        </Card>
+        <Stack hasGutter>
+          <Card>
+            <CardTitle>Update status</CardTitle>
+            <CardBody>
+              <UpgradeStatus
+                clusterID={clusterID}
+                canEdit={canEdit}
+                clusterVersion={clusterVersion}
+                scheduledUpgrade={scheduledUpgrade}
+                availableUpgrades={availableUpgrades || ([] as any)}
+                schedules={schedules}
+                cluster={cluster}
+                isHypershift={isHypershift}
+                isSTSEnabled={cluster?.aws?.sts?.enabled}
+                unmetAcknowledgements={unmetAcknowledgements as VersionGate[]}
+              />
+              {showUpdateButton && (
+                <ButtonWithTooltip
+                  variant="secondary"
+                  onClick={() => {
+                    dispatch(
+                      openModal(modals.UPGRADE_WIZARD, {
+                        clusterName: getClusterName(cluster),
+                        subscriptionID: cluster?.subscription?.id,
+                      }),
+                    );
+                  }}
+                  disableReason={notReadyReason}
+                >
+                  Update
+                </ButtonWithTooltip>
+              )}
+            </CardBody>
+          </Card>
+          <Card>
+            <CardTitle>Channel settings</CardTitle>
+            <CardBody>
+              <Stack hasGutter>
+                <DescriptionList isCompact>
+                  <DescriptionListGroup>
+                    <DescriptionListTerm>Current channel</DescriptionListTerm>
+                    <DescriptionListDescription>
+                      show current channel here
+                    </DescriptionListDescription>
+                  </DescriptionListGroup>
+                </DescriptionList>
+                {showUpdateChannelGroupButton ? (
+                  <UpgradeSettingChannelModal
+                    disableReason={typeof notReadyReason === 'string' ? notReadyReason : undefined}
+                  />
+                ) : null}
+              </Stack>
+            </CardBody>
+          </Card>
+        </Stack>
       </GridItem>
     </Grid>
   );
