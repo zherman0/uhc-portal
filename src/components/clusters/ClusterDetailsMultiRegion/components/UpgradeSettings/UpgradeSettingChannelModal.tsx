@@ -28,13 +28,19 @@ export const UpgradeSettingChannelModal = ({ disableReason }: UpgradeSettingChan
 
   return (
     <>
-      <ButtonWithTooltip
-        variant="secondary"
-        onClick={() => setIsOpen(true)}
-        disableReason={disableReason}
-      >
-        Change
-      </ButtonWithTooltip>
+      {/*
+        Parent Stack uses column flex with default align-items: stretch, which makes
+        buttons full-width. Match "Update" in the adjacent card (block flow = content width).
+      */}
+      <div className="pf-v6-u-align-self-flex-start">
+        <ButtonWithTooltip
+          variant="secondary"
+          onClick={() => setIsOpen(true)}
+          disableReason={disableReason}
+        >
+          Change
+        </ButtonWithTooltip>
+      </div>
 
       <Modal
         id="upgrade-settings-channel-modal"

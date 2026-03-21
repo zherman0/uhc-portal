@@ -9,7 +9,7 @@ import { usePostSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettings
 import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useReplaceSchedule';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
-import { checkAccessibility, render, screen } from '~/testUtils';
+import { checkAccessibility, render, screen, waitFor, within } from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
 import UpgradeSettingsTab from './UpgradeSettingsTab';
@@ -175,7 +175,7 @@ describe('<UpgradeSettingsTab>', () => {
     it('should show update button when cluster has available upgrades', () => {
       renderComponent();
 
-      expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Update' })).toBeInTheDocument();
     });
     it('should not show update button when no upgrades are available', () => {
       const clusterWithoutUpgrades = createMockCluster({
@@ -184,7 +184,7 @@ describe('<UpgradeSettingsTab>', () => {
 
       renderComponent(clusterWithoutUpgrades);
 
-      expect(screen.queryByRole('button', { name: /update/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
     });
 
     it('should not show update button when cluster is hibernating', () => {
@@ -192,13 +192,13 @@ describe('<UpgradeSettingsTab>', () => {
 
       renderComponent(hibernatingCluster);
 
-      expect(screen.queryByRole('button', { name: /update/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Update' })).not.toBeInTheDocument();
     });
 
     it('should dispatch openModal action when update button is clicked', async () => {
       const { user } = renderComponent();
 
-      await user.click(screen.getByRole('button', { name: /update/i }));
+      await user.click(screen.getByRole('button', { name: 'Update' }));
 
       expect(mockDispatch).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -391,6 +391,30 @@ describe('<UpgradeSettingsTab>', () => {
 
       // Should render the component without errors with automatic schedule
       expect(screen.getByText('Select a day and start time')).toBeInTheDocument();
+    });
+  });
+
+  describe('Channel settings', () => {
+    it('renders channel settings card, current channel label, and Change button', () => {
+      renderComponent();
+
+      expect(screen.getByText('Channel settings')).toBeInTheDocument();
+      expect(screen.getByText('Current channel')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
+    });
+
+    it('opens change channel modal when Change is clicked', async () => {
+      const { user } = renderComponent();
+
+      await user.click(screen.getByRole('button', { name: 'Change' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog', { name: 'Change upgrade channel' })).toBeInTheDocument();
+      });
+
+      const dialog = screen.getByRole('dialog', { name: 'Change upgrade channel' });
+      expect(within(dialog).getByText(/Select a new channel for this cluster/)).toBeInTheDocument();
+      expect(within(dialog).getByRole('button', { name: 'Save' })).toBeInTheDocument();
     });
   });
 
