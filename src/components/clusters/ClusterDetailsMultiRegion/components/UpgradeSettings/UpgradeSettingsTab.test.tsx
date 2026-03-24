@@ -29,7 +29,12 @@ const mockHookResponse = {
   mutate: jest.fn(),
   isSuccess: false,
 };
-const mockUnmetAcknowledgements = { data: [], hasVersionGates: false, mutate: jest.fn() };
+const mockUnmetAcknowledgements = {
+  data: [],
+  hasAllVersionGates: false,
+  operationID: undefined,
+  mutate: jest.fn(),
+};
 const mockMachinePoolData = { data: null, isError: false };
 
 jest.mock('~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules', () => ({

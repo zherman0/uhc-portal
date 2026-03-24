@@ -135,7 +135,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   );
   const {
     data: unmetAcknowledgements,
-    hasVersionGates,
+    hasAllVersionGates,
     mutate: unmetAcknowledgementsMutate,
   } = useFetchUnmetAcknowledgements(clusterID || '', isHypershift, region);
 
@@ -386,7 +386,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                     schedules={schedules}
                     cluster={cluster}
                     isHypershift={isHypershift}
-                    hasUnmetAcknowledgements={hasVersionGates}
+                    hasUnmetAcknowledgements={hasAllVersionGates}
                   />
                   <UpdateAllMachinePools
                     goToMachinePoolTab
