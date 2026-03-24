@@ -2,8 +2,6 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
-  Grid,
-  GridItem,
   Modal,
   ModalBody,
   ModalVariant,
@@ -16,7 +14,6 @@ import {
   WizardStep,
 } from '@patternfly/react-core';
 
-import ErrorBox from '~/components/common/ErrorBox';
 import { useFetchUnmetAcknowledgements } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useFetchUnmetAcknowledgements';
 import { refetchSchedules } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useGetSchedules';
 import { usePostClusterGateAgreementAcknowledgeModal } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/usePostClusterGateAgreement';
@@ -27,7 +24,6 @@ import {
 } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
-import { ErrorDetail, ErrorState } from '~/types/types';
 
 import { modalActions } from '../../../../common/Modal/ModalActions';
 import modals from '../../../../common/Modal/modals';
@@ -36,6 +32,7 @@ import UpgradeAcknowledgeStep from '../UpgradeAcknowledge/UpgradeAcknowledgeStep
 
 import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
+import UnmetAcknowledgementsErrorDetails from './UnmetAcknowledgementsErrorDetails';
 import UpgradeTimeSelection from './UpgradeTimeSelection';
 
 import './UpgradeWizard.scss';
@@ -81,14 +78,13 @@ const UpgradeWizard = () => {
 
   const {
     data: unmetAcknowledgements,
-    hasVersionGates,
+    hasAllVersionGates,
     mutate: unmetAcknowledgementsMutate,
     isError: isUnmetAcknowledgementsError,
     error: unmetAcknowledgementsError,
     isPending: isUnmetAcknowledgementsPending,
     isSuccess: isUnmetAcknowledgementsSuccess,
   } = useFetchUnmetAcknowledgements(clusterID || '', isHypershift, region);
-
   const isPending =
     (isClusterDetailsLoading && !isClusterDetailsSuccess) ||
     cluster?.subscription?.id !== subscriptionID;
@@ -96,7 +92,7 @@ const UpgradeWizard = () => {
   const gotAllDetails = !!(
     selectedVersion &&
     (upgradeTimestamp || scheduleType === 'now') &&
-    ((hasVersionGates && acknowledged) || !hasVersionGates) &&
+    ((hasAllVersionGates && acknowledged) || !hasAllVersionGates) &&
     !isUnmetAcknowledgementsError &&
     !isUnmetAcknowledgementsPending
   );
@@ -215,40 +211,22 @@ const UpgradeWizard = () => {
               </div>
             ) : (
               <>
+                {isUnmetAcknowledgementsError && unmetAcknowledgementsError?.errorDetails && (
+                  <UnmetAcknowledgementsErrorDetails error={unmetAcknowledgementsError} />
+                )}
                 <VersionSelectionGrid
                   availableUpgrades={cluster?.version?.available_upgrades}
                   clusterVersion={cluster?.openshift_version || cluster?.version?.id || ''}
                   selected={selectedVersion}
                   onSelect={selectVersion}
-                  isUnMetClusterAcknowledgements={hasVersionGates}
+                  isUnMetClusterAcknowledgements={hasAllVersionGates}
                   isPending={isUnmetAcknowledgementsPending}
                 />
-                {isUnmetAcknowledgementsError && unmetAcknowledgementsError?.errorDetails && (
-                  <Grid hasGutter>
-                    <GridItem span={1} />
-                    <GridItem span={10}>
-                      {unmetAcknowledgementsError.errorDetails.map(
-                        (errorDetail: ErrorDetail & Partial<ErrorState>, index) => (
-                          <GridItem key={errorDetail?.operationID}>
-                            <ErrorBox
-                              response={{
-                                errorMessage: errorDetail?.reason,
-                                operationID: errorDetail?.operationID,
-                              }}
-                              message="A problem occurred with that selected version"
-                            />
-                          </GridItem>
-                        ),
-                      )}
-                    </GridItem>
-                    <GridItem span={1} />
-                  </Grid>
-                )}
               </>
             )}
           </WizardStep>
 
-          {selectedVersion && hasVersionGates ? (
+          {selectedVersion && hasAllVersionGates ? (
             <WizardStep
               name="Administrator acknowledgement"
               id="acknowledge_upgrade"
@@ -297,7 +275,7 @@ const UpgradeWizard = () => {
                     {cluster?.openshift_version} &rarr; {selectedVersion}
                   </dd>
                 </div>
-                {hasVersionGates ? (
+                {hasAllVersionGates ? (
                   <div>
                     <dt>Administrator acknowledgement</dt>
                     <dd>{acknowledged ? 'Approved' : 'Not approved'}</dd>
