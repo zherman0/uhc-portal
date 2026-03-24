@@ -32,7 +32,7 @@ import UpgradeAcknowledgeStep from '../UpgradeAcknowledge/UpgradeAcknowledgeStep
 
 import VersionSelectionGrid from './VersionSelectionGrid/VersionSelectionGrid';
 import FinishedStep from './FinishedStep';
-import UnmetAcknowledgementsErrorDetails from './UnmetAcknowledgementsErrorDetails';
+import UnmetAcknowledgementsErrorAlert from './UnmetAcknowledgementsErrorAlert';
 import UpgradeTimeSelection from './UpgradeTimeSelection';
 
 import './UpgradeWizard.scss';
@@ -202,7 +202,7 @@ const UpgradeWizard = () => {
             ) : (
               <>
                 {isUnmetAcknowledgementsError && unmetAcknowledgementsError?.errorDetails && (
-                  <UnmetAcknowledgementsErrorDetails error={unmetAcknowledgementsError} />
+                  <UnmetAcknowledgementsErrorAlert error={unmetAcknowledgementsError} />
                 )}
                 <VersionSelectionGrid
                   availableUpgrades={cluster?.version?.available_upgrades}

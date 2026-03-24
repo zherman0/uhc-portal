@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { getErrorDetailRowKey } from '~/components/clusters/common/Upgrades/UpgradeWizard/upgradeWizardHelper';
 import { formatErrorData } from '~/queries/helpers';
 import { getClusterService, getClusterServiceForRegion } from '~/services/clusterService';
 import { UpgradePolicy } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
+import { flattenUnmetAcknowledgementErrorDetails } from './flattenUnmetAcknowledgementErrorDetails';
 import { refetchSchedules } from './useGetSchedules';
 
 /* ******************************************
@@ -15,6 +15,9 @@ import { refetchSchedules } from './useGetSchedules';
   1) If there are no version gates, we get a 200 success response with no data.
   2) If there are version gates, we get a 400 error response with the version gates in the error details.
   We then need to get the VersionGates from the error details and return them in the data property.
+
+  For other errors, `details` may bundle several `validation_error_N` keys on one object; we flatten that
+  to one array entry per validation so the UI can map one alert per item.
   ****************************************** */
 export const useFetchUnmetAcknowledgements = (
   clusterID: string,
@@ -56,18 +59,14 @@ export const useFetchUnmetAcknowledgements = (
       };
     }
 
-    // If we made it here, we have non-version-gate error(s)
-    // and the error details are a flat object with `reason`, or as a wrapper like `{ validation_error_N: { reason, details, timestamp } }`.
-    if (getErrorDetailRowKey(errorDetails?.[0], 0) === 'Error_Key') {
-      const errorDetail: Pick<ErrorState, 'reason'> = {
-        reason: formattedError?.error?.reason ?? '',
-      };
-      if (formattedError.error?.errorDetails) {
-        // delete what is in the errorDetails[0] and replace it with the new errorDetail
-        delete formattedError.error.errorDetails[0];
-        formattedError.error.errorDetails[0] = { kind: 'Error', ...errorDetail };
-      }
-    }
+    const errorForUi: ErrorState | null = formattedError.error
+      ? ({
+          ...(formattedError.error as ErrorState),
+          errorDetails: flattenUnmetAcknowledgementErrorDetails(
+            errorDetails,
+          ) as ErrorState['errorDetails'],
+        } as ErrorState)
+      : null;
 
     return {
       data: [],
@@ -75,7 +74,7 @@ export const useFetchUnmetAcknowledgements = (
       isPending,
       isSuccess,
       isError,
-      error: formattedError.error,
+      error: errorForUi,
       mutate,
     };
   }
