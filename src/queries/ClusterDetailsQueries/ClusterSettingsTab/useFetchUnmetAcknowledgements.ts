@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 
+import { getErrorDetailRowKey } from '~/components/clusters/common/Upgrades/UpgradeWizard/upgradeWizardHelper';
 import { formatErrorData } from '~/queries/helpers';
 import { getClusterService, getClusterServiceForRegion } from '~/services/clusterService';
 import { UpgradePolicy } from '~/types/clusters_mgmt.v1';
+import { ErrorState } from '~/types/types';
 
 import { refetchSchedules } from './useGetSchedules';
 
@@ -19,8 +21,7 @@ export const useFetchUnmetAcknowledgements = (
   isHypershift: boolean,
   region?: string,
 ) => {
-  let hasVersionGates = false;
-  const { data, isPending, isError, error, isSuccess, mutate } = useMutation({
+  const { isPending, isError, error, isSuccess, mutate } = useMutation({
     mutationKey: ['fetchUnmetAcknowledgements', clusterID],
     mutationFn: async (schedule: UpgradePolicy) => {
       const clusterService = region ? getClusterServiceForRegion(region) : getClusterService();
@@ -38,35 +39,39 @@ export const useFetchUnmetAcknowledgements = (
   });
   if (isError) {
     const formattedError = formatErrorData(isPending, isError, error);
-    if (formattedError?.error?.errorDetails?.some((detail) => detail?.kind === 'VersionGate')) {
-      hasVersionGates = true;
-    }
+    const errorDetails = formattedError?.error?.errorDetails ?? [];
 
-    if (hasVersionGates) {
-      const versionGateItems =
-        formattedError?.error?.errorDetails?.filter((detail) => detail?.kind === 'VersionGate') ||
-        [];
-      const remainingItems =
-        formattedError?.error?.errorDetails?.filter((detail) => detail?.kind !== 'VersionGate') ||
-        [];
+    const hasAllVersionGates =
+      errorDetails.length > 0 && errorDetails.every((detail) => detail?.kind === 'VersionGate');
 
+    if (hasAllVersionGates) {
       return {
-        data: versionGateItems,
-        hasVersionGates,
+        data: errorDetails,
+        hasAllVersionGates,
         isPending,
         isSuccess: true,
         isError: false,
-        error:
-          remainingItems.length > 0
-            ? { ...formattedError.error, errorDetails: remainingItems }
-            : null,
+        error: null,
         mutate,
       };
     }
 
+    // If we made it here, we have non-version-gate error(s)
+    // and the error details are a flat object with `reason`, or as a wrapper like `{ validation_error_N: { reason, details, timestamp } }`.
+    if (getErrorDetailRowKey(errorDetails?.[0], 0) === 'Error_Key') {
+      const errorDetail: Pick<ErrorState, 'reason'> = {
+        reason: formattedError?.error?.reason ?? '',
+      };
+      if (formattedError.error?.errorDetails) {
+        // delete what is in the errorDetails[0] and replace it with the new errorDetail
+        delete formattedError.error.errorDetails[0];
+        formattedError.error.errorDetails[0] = { kind: 'Error', ...errorDetail };
+      }
+    }
+
     return {
       data: [],
-      hasVersionGates,
+      hasAllVersionGates: false,
       isPending,
       isSuccess,
       isError,
@@ -75,12 +80,14 @@ export const useFetchUnmetAcknowledgements = (
     };
   }
 
+  // 200 success response
   return {
-    data: hasVersionGates ? data : [],
+    data: [],
     isPending,
-    isSuccess: hasVersionGates ? true : isSuccess,
+    isSuccess,
     isError: false,
-    error: hasVersionGates ? undefined : error,
+    error,
+    hasAllVersionGates: false,
     mutate,
   };
 };
