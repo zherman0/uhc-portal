@@ -1,9 +1,10 @@
-/** React list key: first own property name (e.g. `validation_error_1`, `Error_Key`), or `String(index)`. */
+/** React list key: first own property name plus index so duplicate-shaped details stay unique. */
 export const getErrorDetailRowKey = (detail: unknown, index: number): string => {
-  const [key = String(index)] = Object.keys(
+  const keys = Object.keys(
     typeof detail === 'object' && detail !== null && !Array.isArray(detail) ? detail : {},
   );
-  return key;
+  const baseKey = keys[0] ?? String(index);
+  return `${baseKey}-${index}`;
 };
 
 /**
