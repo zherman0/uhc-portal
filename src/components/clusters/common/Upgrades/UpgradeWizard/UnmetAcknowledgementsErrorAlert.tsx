@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Grid, GridItem, Stack, StackItem } from '@patternfly/react-core';
+import { Grid, GridItem, List, ListItem, Stack, StackItem } from '@patternfly/react-core';
 
 import ErrorBox from '~/components/common/ErrorBox';
 import { ErrorState } from '~/types/types';
@@ -20,17 +20,24 @@ const UnmetAcknowledgementsErrorAlert = ({ error }: UnmetAcknowledgementsErrorAl
     <GridItem span={10}>
       <Stack hasGutter>
         <StackItem />
-        {error?.errorDetails?.map((errorDetail: unknown, index: number) => (
-          <StackItem key={getErrorDetailRowKey(errorDetail, index)}>
-            <ErrorBox
-              response={{
-                errorMessage: getErrorDetailReasonMessage(errorDetail),
-                operationID: error?.operationID,
-              }}
-              message="A problem occurred with that selected version"
-            />
-          </StackItem>
-        ))}
+        <StackItem>
+          <ErrorBox
+            response={{
+              errorDetails: error?.errorDetails,
+              errorMessage: error?.errorMessage,
+              operationID: error?.operationID,
+            }}
+            message="A problem occurred with that selected version"
+          >
+            <List>
+              {error?.errorDetails?.map((errorDetail: unknown, index: number) => (
+                <ListItem key={getErrorDetailRowKey(errorDetail, index)}>
+                  {getErrorDetailReasonMessage(errorDetail)}
+                </ListItem>
+              ))}
+            </List>
+          </ErrorBox>
+        </StackItem>
       </Stack>
     </GridItem>
   </Grid>
