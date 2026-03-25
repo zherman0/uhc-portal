@@ -64,6 +64,7 @@ export const useFetchUnmetAcknowledgements = (
           ...(formattedError.error as ErrorState),
           errorDetails: flattenUnmetAcknowledgementErrorDetails(
             errorDetails,
+            formattedError.error.reason ?? '',
           ) as ErrorState['errorDetails'],
         } as ErrorState)
       : null;
