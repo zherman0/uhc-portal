@@ -22,9 +22,41 @@ describe('flattenUnmetAcknowledgementErrorDetails', () => {
     expect(flattenUnmetAcknowledgementErrorDetails(one)).toEqual(one);
   });
 
-  it('passes through non-validation details (e.g. Error_Key)', () => {
+  it('merges top-level reason onto legacy Error_Key-only detail rows', () => {
     const row = [{ Error_Key: 'VersionNotSupportedByAccountRoleTag' }];
-    expect(flattenUnmetAcknowledgementErrorDetails(row)).toEqual(row);
+    expect(
+      flattenUnmetAcknowledgementErrorDetails(
+        row,
+        "Role is not compatible with version 'openshift-v4.20.16'",
+      ),
+    ).toEqual([
+      {
+        Error_Key: 'VersionNotSupportedByAccountRoleTag',
+        kind: 'Error',
+        reason: "Role is not compatible with version 'openshift-v4.20.16'",
+      },
+    ]);
+  });
+
+  it('leaves Error_Key row unchanged when it already has reason', () => {
+    const row = [
+      {
+        Error_Key: 'SomeKey',
+        reason: 'Already on the detail',
+      },
+    ];
+    expect(flattenUnmetAcknowledgementErrorDetails(row, 'Top level reason')).toEqual(row);
+  });
+
+  it('uses empty string for Error_Key rows when no top-level reason is passed', () => {
+    const row = [{ Error_Key: 'VersionNotSupportedByAccountRoleTag' }];
+    expect(flattenUnmetAcknowledgementErrorDetails(row)).toEqual([
+      {
+        Error_Key: 'VersionNotSupportedByAccountRoleTag',
+        kind: 'Error',
+        reason: '',
+      },
+    ]);
   });
 
   it('sorts validation_error_10 after validation_error_2', () => {
