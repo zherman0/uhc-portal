@@ -79,6 +79,23 @@ describe('<UnmetAcknowledgementsErrorAlert />', () => {
     expect(screen.getByText('Nested dry-run validation message')).toBeInTheDocument();
   });
 
+  it('renders legacy Error_Key detail shape (nested reason under Error_Key)', () => {
+    render(
+      <UnmetAcknowledgementsErrorAlert
+        error={{
+          ...baseError,
+          errorDetails: [
+            {
+              Error_Key: { reason: 'Legacy message', details: [] },
+            },
+          ] as any,
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Legacy message')).toBeInTheDocument();
+  });
+
   it('passes operation ID through to the error details section', async () => {
     const { user } = render(
       <UnmetAcknowledgementsErrorAlert
