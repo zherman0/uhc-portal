@@ -46,13 +46,18 @@ export const useFetchClusterTransfer = ({
         return accountsService.getClusterTransferByExternalID(clusterExternalID);
       }
 
+      const { sortField, isAscending } = viewOptions.sorting;
+      // Display name is merged client-side; accounts API has no name column to order by.
+      const orderBy =
+        sortField && sortField !== 'name'
+          ? `${sortField} ${isAscending ? 'asc' : 'desc'}`
+          : 'updated_at desc';
+
       const response = await accountsService.searchClusterTransfers({
         filter: filter || `id='${transferID}'`,
         page: viewOptions.currentPage || 1,
         size: viewOptions.pageSize || 20,
-        orderBy: viewOptions.sorting.sortField
-          ? `${viewOptions.sorting.sortField} ${viewOptions.sorting.isAscending ? 'asc' : 'desc'}`
-          : 'updated_at desc',
+        orderBy,
       });
 
       return response;

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 
 import {
   Button,
@@ -27,7 +28,7 @@ import EyeIcon from '@patternfly/react-icons/dist/esm/icons/eye-icon';
 import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons/dist/esm/icons/outlined-question-circle-icon';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
-import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { SortByDirection, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 
 import { Link } from '~/common/routing';
 import { RefreshButton } from '~/components/clusters/ClusterListMultiRegion/components/RefreshButton';
@@ -39,6 +40,7 @@ import {
 // import the CLUSTER_TABBED_VIEW feature gate
 import { TABBED_CLUSTERS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
+import { viewActions } from '~/redux/actions/viewOptionsActions';
 import { viewConstants } from '~/redux/constants';
 import { useGlobalState } from '~/redux/hooks/useGlobalState';
 import { ClusterTransferStatus } from '~/types/accounts_mgmt.v1';
@@ -50,6 +52,9 @@ import { AcceptDeclineClusterTransferModal } from './AcceptDeclineTransferModal'
 import { CancelClusterTransferModal } from './CancelClusterTransferModal';
 import ClusterTransferListTablePagination from './ClusterTransferListTablePagination';
 import TransferOwnerStatus from './TransferOwnerStatus';
+
+/** sortField when sorting by merged cluster display name (client-side; accounts API has no name column). */
+const CLUSTER_TRANSFER_NAME_SORT_FIELD = 'name';
 
 const ClusterTransferPageHeader = ({
   showSpinner,
@@ -141,14 +146,54 @@ const ClusterTransferPageHeader = ({
 };
 
 const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolean }) => {
+  const dispatch = useDispatch();
   const username = useGlobalState((state) => state.userProfile.keycloakProfile.username);
   const viewOptions = useGlobalState(
     (state) => state.viewOptions[viewConstants.CLUSTER_TRANSFER_VIEW],
   );
+  const { sorting } = viewOptions;
+  const viewType = viewConstants.CLUSTER_TRANSFER_VIEW;
+  const isSortedByName = sorting?.sortField === CLUSTER_TRANSFER_NAME_SORT_FIELD;
+  const nameSortDirection = sorting?.isAscending ? SortByDirection.asc : SortByDirection.desc;
+
+  const getNameColumnSortParams = () => ({
+    sortBy: {
+      index: isSortedByName ? 0 : undefined,
+      direction: nameSortDirection,
+      defaultDirection: SortByDirection.asc,
+    },
+    onSort: (_event: unknown, _columnIndex: number, direction: SortByDirection) => {
+      dispatch(
+        viewActions.onListSortBy(
+          {
+            isAscending: direction === SortByDirection.asc,
+            sortField: CLUSTER_TRANSFER_NAME_SORT_FIELD,
+            sortIndex: 0,
+          },
+          viewType,
+        ),
+      );
+    },
+    columnIndex: 0,
+  });
+
   const { data, isLoading, isError, error } = useFetchClusterTransferDetail({
     username,
   });
   const isTabbedClusters = useFeatureGate(TABBED_CLUSTERS);
+
+  const sortedTransfers = useMemo(() => {
+    const items = data?.items ?? [];
+    if (sorting?.sortField !== CLUSTER_TRANSFER_NAME_SORT_FIELD) {
+      return items;
+    }
+    return [...items].sort((a, b) => {
+      const na = ((a as ClusterTransferDetail).name ?? '').toLocaleLowerCase();
+      const nb = ((b as ClusterTransferDetail).name ?? '').toLocaleLowerCase();
+      const cmp = na.localeCompare(nb, undefined, { sensitivity: 'base' });
+      return sorting?.isAscending ? cmp : -cmp;
+    });
+  }, [data?.items, sorting?.sortField, sorting?.isAscending]);
 
   const columnNames = {
     name: 'Name',
@@ -228,7 +273,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
   const tableHeader = (
     <Thead>
       <Tr>
-        <Th>{columnNames.name}</Th>
+        <Th sort={getNameColumnSortParams()}>{columnNames.name}</Th>
         <Th>{columnNames.status}</Th>
 
         <Th>{columnNames.type}</Th>
@@ -324,7 +369,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
           {!isLoading ? (
             <Table aria-label="Cluster transfer ownership">
               {tableHeader}
-              <Tbody>{data?.items?.map((transfer) => clusterRow(transfer))}</Tbody>
+              <Tbody>{sortedTransfers.map((transfer) => clusterRow(transfer))}</Tbody>
             </Table>
           ) : null}
         </CardBody>
