@@ -43,7 +43,7 @@ describe('viewOptionsReducer', () => {
       });
     });
 
-    it('clamps currentPage when total shrinks and resets to page 1 when empty', () => {
+    it('clamps currentPage when total shrinks (non-empty) and resets to page 1 when empty', () => {
       const stateWithHighPage = {
         ...initialState,
         [CLUSTERS_VIEW]: {
@@ -54,15 +54,27 @@ describe('viewOptionsReducer', () => {
         },
       };
 
-      const result = viewOptionsReducer(stateWithHighPage, {
+      const resultEmpty = viewOptionsReducer(stateWithHighPage, {
         type: SET_TOTAL_ITEMS,
         payload: { viewType: CLUSTERS_VIEW, totalCount: 0 },
       });
 
-      expect(result[CLUSTERS_VIEW]).toMatchObject({
+      expect(resultEmpty[CLUSTERS_VIEW]).toMatchObject({
         totalCount: 0,
         totalPages: 0,
         currentPage: 1,
+      });
+
+      // Non-empty clamp: pageSize 50 and totalCount 75 → totalPages 2; currentPage → min(3, 2) = 2
+      const resultFewerPages = viewOptionsReducer(stateWithHighPage, {
+        type: SET_TOTAL_ITEMS,
+        payload: { viewType: CLUSTERS_VIEW, totalCount: 75 },
+      });
+
+      expect(resultFewerPages[CLUSTERS_VIEW]).toMatchObject({
+        totalCount: 75,
+        totalPages: 2,
+        currentPage: 2,
       });
     });
   });
