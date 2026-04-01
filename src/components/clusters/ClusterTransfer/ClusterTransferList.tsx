@@ -245,11 +245,12 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
     const owner = transfer?.owner;
     const isOwner = owner === username;
     const isInterOrg = !transfer?.subscription && !isOwner;
-    const clusterName = isInterOrg ? (
-      transfer?.name
-    ) : (
-      <Link to={`/details/s/${subscriptionId}`}>{transfer?.name}</Link>
-    );
+    const clusterName =
+      isInterOrg || subscriptionId === undefined ? (
+        transfer?.name
+      ) : (
+        <Link to={`/details/s/${subscriptionId}`}>{transfer?.name}</Link>
+      );
     const clusterStatus = transfer.status;
     const transferAction = !!(
       transfer.id && transfer?.status === ClusterTransferStatus.Pending.toLowerCase()
