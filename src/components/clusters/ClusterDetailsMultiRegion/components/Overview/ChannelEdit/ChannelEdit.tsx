@@ -103,6 +103,7 @@ const ChannelEditModal = ({
                     operationID: error?.error?.operationID,
                   }}
                 />
+                <br />
               </StackItem>
             )}
             <Field
