@@ -1,11 +1,16 @@
+import { normalizeProductID } from '~/common/normalize';
 import { queryClient } from '~/components/App/queryClient';
 // import { formatErrorData } from '~/queries/helpers';
 import { queryConstants } from '~/queries/queriesConstants';
-import { ClusterTransfer } from '~/types/accounts_mgmt.v1';
+import {
+  ClusterTransfer,
+  Subscription,
+  SubscriptionCommonFieldsStatus,
+} from '~/types/accounts_mgmt.v1';
 import { ClusterState } from '~/types/clusters_mgmt.v1/enums';
 import { ClusterFromSubscription } from '~/types/types';
 
-import { useFetchClusterByExternalId } from '../useFetchClusterByExternalId';
+import { useFetchSubscriptionsByExternalId } from '../useFetchSubscriptionsByExternalId';
 
 import { useFetchClusterTransfer } from './useFetchClusterTransfer';
 
@@ -36,11 +41,11 @@ export const useFetchClusterTransferDetail = ({
   const externalIds =
     dataTransfers?.items?.map((transfer) => `'${transfer.cluster_uuid}'`).join(',') || '';
   const {
-    data: clusterData,
-    isLoading: isLoadingClusterData,
-    isError: isErrorClusterData,
-    error: errorClusterData,
-  } = useFetchClusterByExternalId(externalIds);
+    data: subscriptionData,
+    isLoading: isLoadingSubscriptionData,
+    isError: isErrorSubscriptionData,
+    error: errorSubscriptionData,
+  } = useFetchSubscriptionsByExternalId(externalIds);
 
   const clusterTransferDetails: ClusterTransferDetail[] = [];
   dataTransfers?.items?.forEach((transfer: ClusterTransferDetail) => {
@@ -50,34 +55,41 @@ export const useFetchClusterTransferDetail = ({
       version: { raw_id: 'Unknown' },
       product: { id: 'Unknown' },
     };
-    const cluster = clusterData?.find(
-      (cluster: Partial<ClusterFromSubscription>) => cluster.external_id === transfer.cluster_uuid,
+    const subscription = subscriptionData?.items?.find(
+      (sub: Subscription) => sub.external_cluster_id === transfer.cluster_uuid,
     );
 
-    if (cluster) {
-      transferDetails.name =
-        cluster?.subscription?.display_name || cluster?.name || transfer.cluster_uuid;
-      transferDetails.state = cluster?.state || ClusterState.unknown;
-      transferDetails.subscription = cluster?.subscription;
-      transferDetails.product = cluster?.product || { id: 'Unknown' };
-      transferDetails.version = cluster?.version || { raw_id: 'Unknown' };
+    if (subscription) {
+      transferDetails.name = subscription.display_name || transfer.cluster_uuid;
+      transferDetails.state = ClusterState.unknown;
+      transferDetails.subscription = subscription;
+      const version =
+        subscription.status === SubscriptionCommonFieldsStatus.Deprovisioned
+          ? 'Deleted'
+          : subscription.metrics?.[0]?.openshift_version || 'Unknown';
+      transferDetails.product = {
+        id: normalizeProductID(subscription.plan?.type ?? subscription.plan?.id),
+      };
+      transferDetails.version = {
+        raw_id: version,
+      };
     }
     clusterTransferDetails.push(transferDetails);
   });
 
-  if (isErrorTransfers || isErrorClusterData) {
+  if (isErrorTransfers || isErrorSubscriptionData) {
     // const formattedError = formatErrorData(isLoadingTransfers, isErrorTransfers, errorTransfers);
     return {
       data: dataTransfers,
-      isLoading: isLoadingTransfers || isLoadingClusterData,
-      isError: isErrorTransfers || isErrorClusterData,
-      error: errorTransfers || errorClusterData,
+      isLoading: isLoadingTransfers || isLoadingSubscriptionData,
+      isError: isErrorTransfers || isErrorSubscriptionData,
+      error: errorTransfers || errorSubscriptionData,
     };
   }
   return {
     data: { items: clusterTransferDetails },
-    isLoading: isLoadingTransfers || isLoadingClusterData,
-    isError: isErrorTransfers || isErrorClusterData,
-    error: errorTransfers || errorClusterData,
+    isLoading: isLoadingTransfers || isLoadingSubscriptionData,
+    isError: isErrorTransfers || isErrorSubscriptionData,
+    error: errorTransfers || errorSubscriptionData,
   };
 };
