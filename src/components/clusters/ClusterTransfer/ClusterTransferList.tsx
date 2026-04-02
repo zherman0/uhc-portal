@@ -245,11 +245,12 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
     const owner = transfer?.owner;
     const isOwner = owner === username;
     const isInterOrg = !transfer?.subscription && !isOwner;
-    const clusterName = isInterOrg ? (
-      transfer?.name
-    ) : (
-      <Link to={`/details/s/${subscriptionId}`}>{transfer?.name}</Link>
-    );
+    const clusterName =
+      isInterOrg || !subscriptionId ? (
+        transfer?.name
+      ) : (
+        <Link to={`/details/s/${subscriptionId}`}>{transfer?.name}</Link>
+      );
     const clusterStatus = transfer.status;
     const transferAction = !!(
       transfer.id &&
@@ -282,7 +283,7 @@ const ClusterTransferList = ({ hideRefreshButton }: { hideRefreshButton?: boolea
               <Tooltip
                 content={
                   <div>
-                    <p>This Transfer is from another user outside of your orgaization.</p>
+                    <p>This Transfer is from another user outside of your organization.</p>
                   </div>
                 }
               >

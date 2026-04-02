@@ -24,7 +24,7 @@ export const useFetchSubscriptionsByExternalId = (externalIds: string) => {
       const response = await accountsService.getSubscriptions({
         filter: subscriptionSearchString,
         page: 1,
-        page_size: 500,
+        page_size: queryConstants.API_PAGE_SIZE,
       });
       return response;
     },

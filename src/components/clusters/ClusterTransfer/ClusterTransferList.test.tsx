@@ -75,7 +75,7 @@ describe('<ClusterTransferList />', () => {
       isError: false,
     });
     const state = {
-      userProfile: { keycloakProfile: { testOwner } },
+      userProfile: { keycloakProfile: { username: testOwner } },
     };
     withState(state).render(<ClusterTransferList />);
     expect(screen.queryByRole('button', { name: 'Refresh' })).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe('<ClusterTransferList />', () => {
 
   it('Accept/Decline action button shown', async () => {
     const state = {
-      userProfile: { keycloakProfile: { testRecipient } },
+      userProfile: { keycloakProfile: { username: testRecipient } },
     };
     useFetchClusterTransferDetailMock.useFetchClusterTransferDetail.mockReturnValue({
       data: {

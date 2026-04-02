@@ -47,35 +47,39 @@ export const useFetchClusterTransferDetail = ({
     error: errorSubscriptionData,
   } = useFetchSubscriptionsByExternalId(externalIds);
 
-  const clusterTransferDetails: ClusterTransferDetail[] = [];
-  dataTransfers?.items?.forEach((transfer: ClusterTransferDetail) => {
-    const transferDetails: ClusterTransferDetail = {
-      ...transfer,
-      name: transfer.cluster_uuid,
-      version: { raw_id: 'Unknown' },
-      product: { id: 'Unknown' },
-    };
-    const subscription = subscriptionData?.items?.find(
-      (sub: Subscription) => sub.external_cluster_id === transfer.cluster_uuid,
-    );
+  const clusterTransferDetails: ClusterTransferDetail[] =
+    dataTransfers?.items?.map((transfer: ClusterTransferDetail) => {
+      const subscription = subscriptionData?.items?.find(
+        (sub: Subscription) => sub.external_cluster_id === transfer.cluster_uuid,
+      );
 
-    if (subscription) {
-      transferDetails.name = subscription.display_name || transfer.cluster_uuid;
-      transferDetails.state = ClusterState.unknown;
-      transferDetails.subscription = subscription;
+      if (!subscription) {
+        return {
+          ...transfer,
+          name: transfer.cluster_uuid,
+          version: { raw_id: 'Unknown' },
+          product: { id: 'Unknown' },
+        };
+      }
+
       const version =
         subscription.status === SubscriptionCommonFieldsStatus.Deprovisioned
           ? 'Deleted'
           : subscription.metrics?.[0]?.openshift_version || 'Unknown';
-      transferDetails.product = {
-        id: normalizeProductID(subscription.plan?.type ?? subscription.plan?.id),
+
+      return {
+        ...transfer,
+        name: subscription.display_name || transfer.cluster_uuid,
+        state: ClusterState.unknown,
+        subscription,
+        product: {
+          id: normalizeProductID(subscription.plan?.type ?? subscription.plan?.id),
+        },
+        version: {
+          raw_id: version,
+        },
       };
-      transferDetails.version = {
-        raw_id: version,
-      };
-    }
-    clusterTransferDetails.push(transferDetails);
-  });
+    }) ?? [];
 
   if (isErrorTransfers || isErrorSubscriptionData) {
     // const formattedError = formatErrorData(isLoadingTransfers, isErrorTransfers, errorTransfers);
