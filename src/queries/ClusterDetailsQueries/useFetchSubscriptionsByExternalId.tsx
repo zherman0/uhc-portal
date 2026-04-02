@@ -32,22 +32,14 @@ export const useFetchSubscriptionsByExternalId = (externalIds: string) => {
     enabled: !!externalIds,
   });
 
-  if (isError) {
-    const formattedError = formatErrorData(isLoading, isError, error);
-    return {
-      data: data?.data,
-      isLoading,
-      isError,
-      error: formattedError,
-      isFetching,
-    };
-  }
+  const formattedError = isError ? formatErrorData(isLoading, isError, error) : undefined;
+  const finalError = isError ? formattedError : error;
 
   return {
     data: data?.data,
     isLoading,
     isError,
-    error,
+    error: finalError,
     isFetching,
   };
 };

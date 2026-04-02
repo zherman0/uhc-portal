@@ -365,6 +365,7 @@ function actionResolver(
   const showTransferClusterOwnership =
     cluster.canEdit &&
     canTransferClusterOwnership &&
+    cluster.subscription &&
     (isAllowedProducts ||
       (allowAutoTransferClusterOwnership && isClusterOwner && isClusterReady)) &&
     subscriptionStatus !== SubscriptionCommonFieldsStatus.Archived &&
