@@ -27,6 +27,18 @@ describe('resolveUnmetAcknowledgementErrorDetailsForUi', () => {
       );
     });
 
+    it('merges top-level reason when Error_Key is not the first property', () => {
+      const topReason = 'Message from top-level error reason';
+      const details = [{ kind: 'Error', Error_Key: 'VersionNotSupportedByAccountRoleTag' }];
+      expect(resolveUnmetAcknowledgementErrorDetailsForUi(false, details, topReason)).toEqual([
+        {
+          kind: 'Error',
+          Error_Key: 'VersionNotSupportedByAccountRoleTag',
+          reason: topReason,
+        },
+      ]);
+    });
+
     it('uses empty string for Error_Key rows when no top-level reason is passed', () => {
       const row = [{ Error_Key: 'VersionNotSupportedByAccountRoleTag' }];
       expect(resolveUnmetAcknowledgementErrorDetailsForUi(false, row, '')).toEqual([
