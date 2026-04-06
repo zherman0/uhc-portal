@@ -15,8 +15,7 @@ const mergeTopLevelReasonIntoErrorKeyRow = (detail: unknown, topLevelReason: str
     return detail;
   }
   const d = detail as Record<string, unknown>;
-  const keys = Object.keys(d);
-  if (keys[0] !== 'Error_Key' || typeof d.reason === 'string') {
+  if (!Object.prototype.hasOwnProperty.call(d, 'Error_Key') || typeof d.reason === 'string') {
     return detail;
   }
   return {
