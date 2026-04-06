@@ -5,9 +5,8 @@
  * - **Non-aggregated**: `details` is `[{ Error_Key: string }]`; the human message is only on the
  *   error object’s top-level `reason`. We copy that onto each detail row for the UI.
  * - **Aggregated**: each `details[i]` is either one validation wrapper (`upgrade3.json`) or one
- *   object whose **values** are several validation payloads. For the bundled case we use
- *   `Object.values` + `flatMap` so the alert’s `map` gets one element per message (same as N
- *   separate `details` rows from the API).
+ *   object with several `validation_error_*` keys. When there is more than one such key, we map to
+ *   those values so the alert can list each validation separately.
  */
 
 const mergeTopLevelReasonIntoErrorKeyRow = (detail: unknown, topLevelReason: string): unknown => {
@@ -39,13 +38,21 @@ export const resolveUnmetAcknowledgementErrorDetailsForUi = (
     return [];
   }
   if (useAggregatedShape) {
-    // flatMap: each API row becomes one or many list rows (bundled validations → one row per value).
+    // flatMap: bundled `validation_error_*` keys → one list row per payload.
     return details.flatMap((detail) => {
       if (!detail || typeof detail !== 'object' || Array.isArray(detail)) {
         return [detail];
       }
-      const values = Object.values(detail as Record<string, unknown>);
-      return values.length > 1 ? values : [detail];
+      const record = detail as Record<string, unknown>;
+      const validationEntries = Object.entries(record).filter(([key]) =>
+        key.startsWith('validation_error_'),
+      );
+
+      if (validationEntries.length > 1) {
+        return validationEntries.map(([, value]) => value);
+      }
+
+      return [detail];
     });
   }
   return details.map((detail) => mergeTopLevelReasonIntoErrorKeyRow(detail, topLevelReason));

@@ -68,7 +68,7 @@ describe('resolveUnmetAcknowledgementErrorDetailsForUi', () => {
       );
     });
 
-    it('splits one details row with multiple validation entries into one row per Object.values entry', () => {
+    it('splits one details row with multiple validation_error_* keys into one row per payload', () => {
       const bundled = [
         {
           validation_error_1: {
