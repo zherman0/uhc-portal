@@ -46,6 +46,7 @@ export const OSD_FOR_GOOGLE_CLOUD = 'ocmui-osd-wizard-for-google-cloud';
 export const FIPS_FOR_HYPERSHIFT = 'ocmui-fips-for-hypershift';
 export const Y_STREAM_CHANNEL = 'ocmui-y-stream-channel';
 export const GCP_DNS_ZONE = 'ocmui-gcp-dns-zone';
+export const AGGREGATE_UPGRADE_VALIDATION_ERRORS = 'ocmui-aggregate-upgrade-validation-errors';
 
 export const ENABLE_AWS_TAGS_EDITING = false;
 
@@ -80,4 +81,5 @@ export default {
   FIPS_FOR_HYPERSHIFT,
   Y_STREAM_CHANNEL,
   GCP_DNS_ZONE,
+  AGGREGATE_UPGRADE_VALIDATION_ERRORS,
 } as const;
