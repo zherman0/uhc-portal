@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { Tab, Tabs, TabTitleText } from '@patternfly/react-core';
 
 import { trackEvents } from '~/common/analytics';
-import { useClusterListPath, useNavigate } from '~/common/routing';
+import { useNavigate } from '~/common/routing';
 import useAnalytics from '~/hooks/useAnalytics';
 
 import { ClusterTabsId } from '../common/ClusterTabIds';
@@ -22,7 +22,6 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const track = useAnalytics();
-  const clusterListPath = useClusterListPath();
 
   const [tabs, setTabs] = React.useState<TabsRowTabType[]>();
   const [activeTab, setActiveTab] = React.useState<TabsRowTabType>();
@@ -95,22 +94,17 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
     if (tabs?.length) {
       const targetTab = tabs.find((tab) => `#${tab.id}` === location.hash);
 
-      /* Checking if tab exists,
-          otherwise we navigate to overview
-          if the user did not click on back button,
-          in that case we navigate to cluster list page */
+      /* No hash or unknown/disabled tab: normalize URL to #overview on this page.
+       * Do not navigate to cluster list — replacing the details URL with the list path
+       * drops the previous history entry (e.g. Cluster Requests) and breaks browser Back. */
       if (!targetTab?.show || targetTab.isDisabled) {
-        if (location.hash === '') {
-          navigate(clusterListPath, { replace: true });
-        } else {
-          setInitialTab(tabs.find((tab) => tab.id === ClusterTabsId.OVERVIEW) || tabs[0]);
-          navigate(
-            {
-              hash: `#${ClusterTabsId.OVERVIEW}`,
-            },
-            { replace: true },
-          );
-        }
+        setInitialTab(tabs.find((tab) => tab.id === ClusterTabsId.OVERVIEW) || tabs[0]);
+        navigate(
+          {
+            hash: `#${ClusterTabsId.OVERVIEW}`,
+          },
+          { replace: true },
+        );
       }
       handleTabChange(
         targetTab?.isDisabled || !targetTab?.show ? ClusterTabsId.OVERVIEW : targetTab.id,
@@ -152,9 +146,14 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
         track(trackEvents.ClusterTabs, {
           customProperties: trackingProperties,
         });
-        navigate({
-          hash: `#${activeTab?.id}`,
-        });
+        /* Initial tab sync must use replace — otherwise we push a second details entry
+         * (hash normalization + this navigate) and Chrome requires Back twice to leave. */
+        navigate(
+          {
+            hash: `#${activeTab?.id}`,
+          },
+          { replace: !previousTab?.id },
+        );
       }
     }
   }, [activeTab, initialTab, historyPush, previousTab, navigate, redirectedToOverview, track]);
