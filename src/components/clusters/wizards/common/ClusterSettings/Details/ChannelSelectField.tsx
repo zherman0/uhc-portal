@@ -11,7 +11,7 @@ import PopoverHint from '~/components/common/PopoverHint';
 import { Version } from '~/types/clusters_mgmt.v1';
 
 export type ChannelSelectFieldProps = {
-  clusterVersion?: Version & { available_channels?: string[] };
+  clusterVersion?: Version;
 };
 
 export const ChannelSelectField = ({ clusterVersion }: ChannelSelectFieldProps) => {
