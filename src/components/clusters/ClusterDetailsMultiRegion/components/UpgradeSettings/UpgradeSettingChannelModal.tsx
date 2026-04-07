@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Formik } from 'formik';
 
 import {
   Button,
@@ -10,16 +11,25 @@ import {
   ModalVariant,
 } from '@patternfly/react-core';
 
+import { FieldId } from '~/components/clusters/wizards/common';
+import { ChannelSelectField } from '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField';
 import ButtonWithTooltip from '~/components/common/ButtonWithTooltip';
-
-import ChannelSelectField from './ChannelSelectField';
+import { Version } from '~/types/clusters_mgmt.v1';
 
 export type UpgradeSettingChannelModalProps = {
   /** Disables the Change button (e.g. cluster not ready). */
   disableReason?: string;
+  /** Cluster version object (includes available_channels for the channel list). */
+  clusterVersion?: Version & { available_channels?: string[] };
+  /** Current Y-stream channel from the cluster (`cluster.channel`). */
+  channel?: string;
 };
 
-export const UpgradeSettingChannelModal = ({ disableReason }: UpgradeSettingChannelModalProps) => {
+export const UpgradeSettingChannelModal = ({
+  disableReason,
+  clusterVersion,
+  channel,
+}: UpgradeSettingChannelModalProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const handleClose = () => {
@@ -60,7 +70,13 @@ export const UpgradeSettingChannelModal = ({ disableReason }: UpgradeSettingChan
               Select a new channel for this cluster. The cluster will receive upgrades according to
               the channel you choose.
             </p>
-            <ChannelSelectField />
+            <Formik
+              initialValues={{ [FieldId.VersionChannel]: channel ?? '' }}
+              onSubmit={() => {}}
+              enableReinitialize
+            >
+              <ChannelSelectField clusterVersion={clusterVersion} />
+            </Formik>
           </Flex>
         </ModalBody>
         <ModalFooter>
