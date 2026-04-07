@@ -20,7 +20,7 @@ const availableChannelsFromVersions = (
   rawId?: string,
 ): { value: string; label: string }[] => {
   const items = versionsData?.items ?? [];
-  const matchingVersion = rawId ? items.find((el) => el.raw_id === rawId) : items[0];
+  const matchingVersion = rawId ? items.find((el) => el.raw_id === rawId) : undefined;
   const channels = matchingVersion?.available_channels ?? [];
   return toDropdownOptions(channels);
 };
