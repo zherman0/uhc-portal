@@ -139,6 +139,24 @@ describe('<ChannelEdit />', () => {
     expect(screen.getByText('N/A')).toBeInTheDocument();
   });
 
+  it('should not render an edit button when available channels list is empty', () => {
+    mockUseGetChannelsData.mockReturnValue({
+      availableDropdownChannels: [],
+      isLoading: false,
+    });
+
+    render(
+      <ChannelEdit
+        clusterID="cluster-123"
+        channel="stable-4.16"
+        cluster={mockedROSAHyperShiftCluster}
+      />,
+    );
+
+    expect(screen.getByText('stable-4.16')).toBeInTheDocument();
+    expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
+  });
+
   it('should not render an edit button if cluster is not editable', () => {
     mockUseGetChannelsData.mockReturnValue({
       availableDropdownChannels: mockOptions,

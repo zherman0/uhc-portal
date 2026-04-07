@@ -142,6 +142,7 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
   const { canEdit } = cluster;
   const isClusterReady = cluster.state === clusterStates.ready;
   const { availableDropdownChannels, isLoading } = useGetChannelsData(cluster, canEdit);
+  const hasChannelOptions = (availableDropdownChannels?.length ?? 0) > 0;
 
   return (
     <>
@@ -169,17 +170,15 @@ export const ChannelEdit = ({ clusterID, channel, cluster }: ChannelEditProps) =
         </DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelName(channel ?? '')}
-          {canEdit &&
-            (isLoading ? (
-              <Spinner size="sm" aria-label="Loading..." />
-            ) : (
-              <EditButton
-                data-testid="channelModal"
-                ariaLabel="editChannelBtn"
-                onClick={() => setIsModalOpen(true)}
-                isAriaDisabled={!canEdit || isLoading || !isClusterReady}
-              />
-            ))}
+          {canEdit && isLoading ? <Spinner size="sm" aria-label="Loading..." /> : null}
+          {canEdit && !isLoading && hasChannelOptions ? (
+            <EditButton
+              data-testid="channelModal"
+              ariaLabel="editChannelBtn"
+              onClick={() => setIsModalOpen(true)}
+              isAriaDisabled={!canEdit || !isClusterReady}
+            />
+          ) : null}
         </DescriptionListDescription>
       </DescriptionListGroup>
     </>
