@@ -2,14 +2,14 @@ import React from 'react';
 
 import { render, screen, waitFor } from '~/testUtils';
 
-import { useMutateChannel } from '../../../../../../queries/ChannelEditQueries/useMutateChannel';
+import { useEditChannelOnCluster } from '../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster';
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
 
 import { CanEditCluster, ChannelEdit } from './ChannelEdit';
 import { useGetChannelsData } from './useGetChannelsData';
 
 jest.mock('./useGetChannelsData');
-jest.mock('../../../../../../queries/ChannelEditQueries/useMutateChannel');
+jest.mock('../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster');
 
 jest.mock('~/components/common/ErrorBox', () => (props: { message?: string }) => {
   const { message } = props;
@@ -39,7 +39,7 @@ jest.mock('./ChannelSelect', () => ({
 }));
 
 const mockUseGetChannelsData = useGetChannelsData as jest.Mock;
-const mockUseMutateChannel = useMutateChannel as jest.Mock;
+const mockUseEditChannelOnCluster = useEditChannelOnCluster as jest.Mock;
 
 const mockOptions = [
   { value: 'stable-4.16', label: 'stable-4.16' },
@@ -58,9 +58,9 @@ describe('<ChannelEdit />', () => {
   beforeEach(() => {
     mutateMock = jest.fn();
     mockUseGetChannelsData.mockClear();
-    mockUseMutateChannel.mockClear();
+    mockUseEditChannelOnCluster.mockClear();
 
-    mockUseMutateChannel.mockReturnValue({
+    mockUseEditChannelOnCluster.mockReturnValue({
       mutate: mutateMock,
       isError: false,
       error: null,
@@ -241,7 +241,7 @@ describe('<ChannelEdit />', () => {
       availableDropdownChannels: mockOptions,
       isLoading: false,
     });
-    mockUseMutateChannel.mockReturnValue({
+    mockUseEditChannelOnCluster.mockReturnValue({
       mutate: mutateMock,
       isError: false,
       error: null,
@@ -274,7 +274,7 @@ describe('<ChannelEdit />', () => {
       isLoading: false,
     });
 
-    mockUseMutateChannel.mockReturnValue({
+    mockUseEditChannelOnCluster.mockReturnValue({
       mutate: mutateMock,
       isError: true,
       error: { error: { errorMessage: 'Changing channel resulted in error' } },

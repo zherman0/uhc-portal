@@ -23,7 +23,7 @@ import EditButton from '~/components/common/EditButton';
 import ErrorBox from '~/components/common/ErrorBox';
 import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
-import { useMutateChannel } from '~/queries/ChannelEditQueries/useMutateChannel';
+import { useEditChannelOnCluster } from '~/queries/ChannelEditQueries/useEditChannelOnCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
 import { Cluster } from '~/types/clusters_mgmt.v1';
 
@@ -60,7 +60,7 @@ const ChannelEditModal = ({
   channel,
   optionsDropdownData,
 }: ChannelEditModalProps) => {
-  const { mutate, isError, error, isPending } = useMutateChannel();
+  const { mutate, isError, error, isPending } = useEditChannelOnCluster();
 
   const handleClose = () => {
     onClose();

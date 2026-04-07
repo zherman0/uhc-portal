@@ -4,7 +4,7 @@ import { clusterService } from '~/services';
 
 import { formatErrorData } from '../helpers';
 
-export const useMutateChannel = () => {
+export const useEditChannelOnCluster = () => {
   const { data, isError, isPending, isSuccess, mutate, mutateAsync, error, status } = useMutation({
     mutationKey: ['clusterService', 'editChannel'],
     mutationFn: async ({ clusterID, channel }: { clusterID: string; channel: string }) => {
