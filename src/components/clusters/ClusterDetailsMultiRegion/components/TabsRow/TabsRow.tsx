@@ -91,28 +91,37 @@ const TabsRow = ({ tabsInfo, onTabSelected, initTabOpen }: TabsRowProps) => {
   }, [tabs, initialTab, handleTabChange]);
 
   React.useEffect(() => {
-    if (tabs?.length) {
-      const targetTab = tabs.find((tab) => `#${tab.id}` === location.hash);
+    if (!tabs?.length) return;
 
-      /* No hash or unknown/disabled tab: normalize URL to #overview on this page.
-       * Do not navigate to cluster list — replacing the details URL with the list path
-       * drops the previous history entry (e.g. Cluster Requests) and breaks browser Back. */
-      if (!targetTab?.show || targetTab.isDisabled) {
-        setInitialTab(tabs.find((tab) => tab.id === ClusterTabsId.OVERVIEW) || tabs[0]);
-        navigate(
-          {
-            hash: `#${ClusterTabsId.OVERVIEW}`,
-          },
-          { replace: true },
-        );
-      }
-      handleTabChange(
-        targetTab?.isDisabled || !targetTab?.show ? ClusterTabsId.OVERVIEW : targetTab.id,
-        false,
+    /* Empty hash: initial tab + hash sync are handled by the other effects. Without this guard,
+     * adding deps below would duplicate handleTabChange and fight initTabOpen. */
+    if (location.hash === '') {
+      return;
+    }
+
+    const targetTab = tabs.find((tab) => `#${tab.id}` === location.hash);
+
+    /* No hash or unknown/disabled tab: normalize URL to #overview on this page.
+     * Do not navigate to cluster list — replacing the details URL with the list path
+     * drops the previous history entry (e.g. Cluster Requests) and breaks browser Back. */
+    if (!targetTab?.show || targetTab.isDisabled) {
+      setInitialTab(tabs.find((tab) => tab.id === ClusterTabsId.OVERVIEW) || tabs[0]);
+      navigate(
+        {
+          hash: `#${ClusterTabsId.OVERVIEW}`,
+        },
+        { replace: true },
       );
     }
+    handleTabChange(
+      targetTab?.isDisabled || !targetTab?.show ? ClusterTabsId.OVERVIEW : targetTab.id,
+      false,
+    );
+    /* Use tabs?.length (not `tabs`) so this runs when the list first resolves or its size changes,
+     * without re-running on every new array reference from setTabs(getTabs(...)).
+     * navigate, setInitialTab, handleTabChange: see exhaustive-deps disable below. */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.hash]); // eslint wants dependencies, but we only need to listen to location.hash changes
+  }, [location.hash, tabs?.length]);
 
   React.useEffect(() => {
     if (activeTab && !activeTab.show) {
