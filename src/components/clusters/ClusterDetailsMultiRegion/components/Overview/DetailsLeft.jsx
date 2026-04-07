@@ -178,7 +178,7 @@ function DetailsLeft({
           />
         )}
       {isYStreamChannelEnabled && !isArchived && !isDeprovisioned && !isDisconnected && (
-        <ChannelEdit clusterID={clusterID} channel={cluster?.channel} cluster={cluster} />
+        <ChannelEdit cluster={cluster} />
       )}
       <DescriptionListGroup>
         <DescriptionListTerm>
