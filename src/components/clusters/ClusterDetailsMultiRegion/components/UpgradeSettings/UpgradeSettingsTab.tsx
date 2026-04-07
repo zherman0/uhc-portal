@@ -56,8 +56,6 @@ import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitorin
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
 import { ChannelEdit } from '../Overview/ChannelEdit/ChannelEdit';
 
-// import { UpgradeSettingChannelModal } from './UpgradeSettingChannelModal';
-
 interface UpgradeSettingsFormValues {
   upgrade_policy: 'automatic' | 'manual';
   automatic_upgrade_schedule: string;
