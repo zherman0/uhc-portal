@@ -37,6 +37,8 @@ import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSetti
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
+import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
@@ -77,10 +79,10 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
   const clusterID = cluster.id || '';
   const { canEdit } = cluster;
 
+  const isYStreamEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isHypershift = isHypershiftCluster(cluster);
   const clusterVersion = getClusterVersion(cluster);
   const isRosa = isROSA(cluster);
-  const isYStreamEnabled = true; // useFeatureGate(Y_STREAM_ENABLED);
   const { data: schedulesData, isLoading: isGetShcedulesLoading } = useGetSchedules(
     clusterID,
     isHypershift,
