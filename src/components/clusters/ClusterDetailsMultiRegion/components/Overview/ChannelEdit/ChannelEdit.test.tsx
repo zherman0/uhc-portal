@@ -1,11 +1,12 @@
 import React from 'react';
 
 import { render, screen, waitFor } from '~/testUtils';
+import { ClusterWithPermissions } from '~/types/types';
 
 import { useEditChannelOnCluster } from '../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster';
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
 
-import { CanEditCluster, ChannelEdit } from './ChannelEdit';
+import { ChannelEdit } from './ChannelEdit';
 import { useGetChannelsData } from './useGetChannelsData';
 
 jest.mock('./useGetChannelsData');
@@ -50,10 +51,10 @@ describe('<ChannelEdit />', () => {
   let mutateMock: jest.Mock;
 
   const mockedROSAHyperShiftCluster = fixtures.ROSAHypershiftClusterDetails
-    .cluster as unknown as CanEditCluster;
+    .cluster as unknown as ClusterWithPermissions;
 
   const mockedROSAHyperShiftWaitingCluster = fixtures.ROSAHypershiftWaitingClusterDetails
-    .cluster as unknown as CanEditCluster;
+    .cluster as unknown as ClusterWithPermissions;
 
   beforeEach(() => {
     mutateMock = jest.fn();
@@ -74,9 +75,9 @@ describe('<ChannelEdit />', () => {
     });
     render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -92,9 +93,9 @@ describe('<ChannelEdit />', () => {
 
     render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -113,9 +114,12 @@ describe('<ChannelEdit />', () => {
 
     render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftWaitingCluster}
+        cluster={
+          {
+            ...mockedROSAHyperShiftWaitingCluster,
+            channel: 'stable-4.16',
+          } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -133,7 +137,9 @@ describe('<ChannelEdit />', () => {
     });
 
     render(
-      <ChannelEdit clusterID="cluster-123" channel="" cluster={mockedROSAHyperShiftCluster} />,
+      <ChannelEdit
+        cluster={{ ...mockedROSAHyperShiftCluster, channel: '' } as ClusterWithPermissions}
+      />,
     );
 
     expect(screen.getByText('N/A')).toBeInTheDocument();
@@ -147,9 +153,9 @@ describe('<ChannelEdit />', () => {
 
     render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -165,7 +171,9 @@ describe('<ChannelEdit />', () => {
 
     const nonEditableCluster = { ...mockedROSAHyperShiftCluster, canEdit: false };
     render(
-      <ChannelEdit clusterID="cluster-123" channel="stable-4.16" cluster={nonEditableCluster} />,
+      <ChannelEdit
+        cluster={{ ...nonEditableCluster, channel: 'stable-4.16' } as ClusterWithPermissions}
+      />,
     );
 
     const openModalButton = screen.queryByTestId('channelModal');
@@ -180,9 +188,9 @@ describe('<ChannelEdit />', () => {
 
     const { user } = render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -201,9 +209,9 @@ describe('<ChannelEdit />', () => {
 
     const { user } = render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -225,9 +233,9 @@ describe('<ChannelEdit />', () => {
 
     const { user } = render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -250,9 +258,13 @@ describe('<ChannelEdit />', () => {
 
     const { user } = render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            id: 'cluster-123',
+          } as ClusterWithPermissions
+        }
       />,
     );
 
@@ -282,9 +294,9 @@ describe('<ChannelEdit />', () => {
 
     const { user } = render(
       <ChannelEdit
-        clusterID="cluster-123"
-        channel="stable-4.16"
-        cluster={mockedROSAHyperShiftCluster}
+        cluster={
+          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+        }
       />,
     );
 

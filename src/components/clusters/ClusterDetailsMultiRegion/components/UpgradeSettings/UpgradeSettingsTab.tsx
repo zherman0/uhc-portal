@@ -9,10 +9,6 @@ import {
   CardBody,
   CardFooter,
   CardTitle,
-  DescriptionList,
-  DescriptionListDescription,
-  DescriptionListGroup,
-  DescriptionListTerm,
   Flex,
   FlexItem,
   Form,
@@ -40,7 +36,7 @@ import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries
 import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
-import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
+import { ClusterWithPermissions, UpgradePolicyWithState } from '~/types/types';
 
 import getClusterName from '../../../../../common/getClusterName';
 import ButtonWithTooltip from '../../../../common/ButtonWithTooltip';
@@ -58,8 +54,9 @@ import UpgradeSettingsFields from '../../../common/Upgrades/UpgradeSettingsField
 import UpgradeStatus from '../../../common/Upgrades/UpgradeStatus';
 import UserWorkloadMonitoringSection from '../../../common/UserWorkloadMonitoringSectionMultiRegion';
 import { UpdateAllMachinePools } from '../MachinePools/UpdateMachinePools';
+import { ChannelEdit } from '../Overview/ChannelEdit/ChannelEdit';
 
-import { UpgradeSettingChannelModal } from './UpgradeSettingChannelModal';
+// import { UpgradeSettingChannelModal } from './UpgradeSettingChannelModal';
 
 interface UpgradeSettingsFormValues {
   upgrade_policy: 'automatic' | 'manual';
@@ -69,7 +66,7 @@ interface UpgradeSettingsFormValues {
 }
 
 interface UpgradeSettingsTabProps {
-  cluster: AugmentedCluster;
+  cluster: ClusterWithPermissions;
 }
 
 const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
@@ -226,7 +223,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
     (availableUpgrades?.length || 0) > 0 &&
     !scheduledUpgrade &&
     !clusterHibernating;
-  const showUpdateChannelGroupButton = true;
+  const showUpdateChannelButton = true;
   const isPending =
     isReplaceSchedulePending ||
     isEditSchedulesPending ||
@@ -495,23 +492,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               <CardTitle>Channel settings</CardTitle>
               <CardBody>
                 <Stack hasGutter>
-                  <DescriptionList isCompact>
-                    <DescriptionListGroup>
-                      <DescriptionListTerm>Current channel</DescriptionListTerm>
-                      <DescriptionListDescription>
-                        {cluster?.channel ?? 'None specified'}
-                      </DescriptionListDescription>
-                    </DescriptionListGroup>
-                  </DescriptionList>
-                  {showUpdateChannelGroupButton ? (
-                    <UpgradeSettingChannelModal
-                      disableReason={
-                        typeof notReadyReason === 'string' ? notReadyReason : undefined
-                      }
-                      clusterVersion={cluster.version}
-                      channel={cluster?.channel ?? ''}
-                    />
-                  ) : null}
+                  {showUpdateChannelButton ? <ChannelEdit cluster={cluster} /> : null}
                 </Stack>
               </CardBody>
             </Card>
