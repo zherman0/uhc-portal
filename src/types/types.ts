@@ -71,6 +71,7 @@ export type FakeCluster = // AICluster &
     | 'additional_trust_bundle'
     | 'node_drain_grace_period'
     | 'disable_user_workload_monitoring'
+    | 'channel'
   > & {
     metrics: OneMetric;
     state?: string | ClusterState;

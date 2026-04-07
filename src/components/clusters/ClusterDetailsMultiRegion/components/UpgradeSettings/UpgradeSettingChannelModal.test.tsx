@@ -4,10 +4,13 @@ import { render, screen, waitFor } from '~/testUtils';
 
 import { UpgradeSettingChannelModal } from './UpgradeSettingChannelModal';
 
-jest.mock('./ChannelSelectField', () => ({
-  __esModule: true,
-  default: () => <div data-testid="channel-select-stub" />,
-}));
+jest.mock(
+  '~/components/clusters/wizards/common/ClusterSettings/Details/ChannelSelectField',
+  () => ({
+    __esModule: true,
+    ChannelSelectField: () => <div data-testid="channel-select-stub" />,
+  }),
+);
 
 describe('<UpgradeSettingChannelModal />', () => {
   afterEach(() => {

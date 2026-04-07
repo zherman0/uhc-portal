@@ -497,7 +497,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                     <DescriptionListGroup>
                       <DescriptionListTerm>Current channel</DescriptionListTerm>
                       <DescriptionListDescription>
-                        show current channel here
+                        {cluster?.channel ?? 'None specified'}
                       </DescriptionListDescription>
                     </DescriptionListGroup>
                   </DescriptionList>
@@ -506,6 +506,8 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
                       disableReason={
                         typeof notReadyReason === 'string' ? notReadyReason : undefined
                       }
+                      clusterVersion={cluster.version}
+                      channel={cluster?.channel ?? ''}
                     />
                   ) : null}
                 </Stack>
