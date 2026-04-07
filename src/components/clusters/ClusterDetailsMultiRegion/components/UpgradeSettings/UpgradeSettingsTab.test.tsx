@@ -9,10 +9,20 @@ import { usePostSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettings
 import { useReplaceSchedule } from '~/queries/ClusterDetailsQueries/ClusterSettingsTab/useReplaceSchedule';
 import { useFetchMachineOrNodePools } from '~/queries/ClusterDetailsQueries/MachinePoolTab/useFetchMachineOrNodePools';
 import { useEditCluster } from '~/queries/ClusterDetailsQueries/useEditCluster';
-import { checkAccessibility, render, screen, waitFor, within } from '~/testUtils';
+import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
+import { useGetChannelsData } from '../Overview/ChannelEdit/useGetChannelsData';
+
 import UpgradeSettingsTab from './UpgradeSettingsTab';
+
+jest.mock('../Overview/ChannelEdit/useGetChannelsData', () => ({
+  useGetChannelsData: jest.fn(() => ({
+    availableDropdownChannels: [],
+    isLoading: false,
+  })),
+}));
 
 // Mock all external hooks and dependencies
 const mockDispatch = jest.fn();
@@ -105,6 +115,7 @@ const useDeleteScheduleMock = useDeleteSchedule as jest.Mock;
 const useFetchUnmetAcknowledgementsMock = useFetchUnmetAcknowledgements as jest.Mock;
 const useFetchMachineOrNodePoolsMock = useFetchMachineOrNodePools as jest.Mock;
 const useEditClusterMock = useEditCluster as jest.Mock;
+const mockUseGetChannelsData = useGetChannelsData as jest.Mock;
 
 const renderComponent = (cluster = createMockCluster()) =>
   render(<UpgradeSettingsTab cluster={cluster as AugmentedCluster} />);
@@ -112,6 +123,7 @@ const renderComponent = (cluster = createMockCluster()) =>
 describe('<UpgradeSettingsTab>', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseFeatureGate([]);
     useGetSchedulesMock.mockReturnValue(mockGetSchedules);
     usePostScheduleMock.mockReturnValue(mockHookResponse);
     useReplaceScheduleMock.mockReturnValue(mockHookResponse);
@@ -395,26 +407,43 @@ describe('<UpgradeSettingsTab>', () => {
   });
 
   describe('Channel settings', () => {
-    it('renders channel settings card, current channel label, and Change button', () => {
-      renderComponent();
-
-      expect(screen.getByText('Channel settings')).toBeInTheDocument();
-      expect(screen.getByText('Current channel')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
+    beforeEach(() => {
+      mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
+      mockUseGetChannelsData.mockReturnValue({
+        availableDropdownChannels: [{ value: 'stable-4.12', label: 'stable-4.12' }],
+        isLoading: false,
+      });
     });
 
-    it('opens change channel modal when Change is clicked', async () => {
-      const { user } = renderComponent();
+    it('renders channel settings card with current channel and edit button', () => {
+      renderComponent(
+        createMockCluster({
+          channel: 'stable-4.12',
+        }),
+      );
 
-      await user.click(screen.getByRole('button', { name: 'Change' }));
+      expect(screen.getByText('Channel settings')).toBeInTheDocument();
+      expect(screen.getByText('Channel')).toBeInTheDocument();
+      expect(screen.getByTestId('channelModal')).toBeInTheDocument();
+    });
 
-      await waitFor(() => {
-        expect(screen.getByRole('dialog', { name: 'Change upgrade channel' })).toBeInTheDocument();
-      });
+    it('opens edit channel modal when pencil icon is clicked', async () => {
+      const { user } = renderComponent(
+        createMockCluster({
+          channel: 'stable-4.12',
+        }),
+      );
 
-      const dialog = screen.getByRole('dialog', { name: 'Change upgrade channel' });
-      expect(within(dialog).getByText(/Select a new channel for this cluster/)).toBeInTheDocument();
-      expect(within(dialog).getByRole('button', { name: 'Save' })).toBeInTheDocument();
+      await user.click(screen.getByTestId('channelModal'));
+
+      const description = await screen.findByText(/Select a new channel for this cluster/);
+      expect(description).toBeInTheDocument();
+
+      const dialog = description.closest('[role="dialog"]');
+      expect(dialog).toBeTruthy();
+      expect(
+        within(dialog as HTMLElement).getByRole('button', { name: 'Save' }),
+      ).toBeInTheDocument();
     });
   });
 
