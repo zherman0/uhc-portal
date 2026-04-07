@@ -70,8 +70,7 @@ const constants = {
   channelGroupHint:
     'A channel group determines the versions and updates available for your cluster. For a longer support life cycle, change the channel group to an Extended Update Support (EUS) version.',
   channelHint: `Channels provide recommended release versions and help control the pace of updates. Update channels align to a minor version, for example 4.20. To update to the next minor release, 
-    you might need to change the channel. This differs from Channel groups, which only showed the available z-stream updates within a particular minor version.
-    For example, if your cluster was using the Channel group EUS, it will be migrated to your current cluster minor version; that is, if your cluster is on version 4.18.29, the Channel will default to eus-4.18.`,
+    you might need to change the channel.`,
 };
 
 const billingModelConstants = {
