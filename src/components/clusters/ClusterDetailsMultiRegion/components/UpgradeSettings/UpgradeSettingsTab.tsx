@@ -221,7 +221,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
     (availableUpgrades?.length || 0) > 0 &&
     !scheduledUpgrade &&
     !clusterHibernating;
-  const showUpdateChannelButton = true;
+
   const isPending =
     isReplaceSchedulePending ||
     isEditSchedulesPending ||
@@ -490,7 +490,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               <CardTitle>Channel settings</CardTitle>
               <CardBody>
                 <Stack hasGutter>
-                  {showUpdateChannelButton ? <ChannelEdit cluster={cluster} /> : null}
+                  <ChannelEdit cluster={cluster} />
                 </Stack>
               </CardBody>
             </Card>
