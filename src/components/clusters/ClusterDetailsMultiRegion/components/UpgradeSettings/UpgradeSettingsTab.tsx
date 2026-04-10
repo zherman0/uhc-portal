@@ -36,7 +36,7 @@ import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries
 import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { UpgradePolicy, VersionGate } from '~/types/clusters_mgmt.v1';
-import { ClusterWithPermissions, UpgradePolicyWithState } from '~/types/types';
+import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
 import getClusterName from '../../../../../common/getClusterName';
 import ButtonWithTooltip from '../../../../common/ButtonWithTooltip';
@@ -64,7 +64,7 @@ interface UpgradeSettingsFormValues {
 }
 
 interface UpgradeSettingsTabProps {
-  cluster: ClusterWithPermissions;
+  cluster: AugmentedCluster;
 }
 
 const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
