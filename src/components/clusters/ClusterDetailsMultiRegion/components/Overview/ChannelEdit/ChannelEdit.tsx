@@ -25,7 +25,7 @@ import ExternalLink from '~/components/common/ExternalLink';
 import PopoverHint from '~/components/common/PopoverHint';
 import { useEditChannelOnCluster } from '~/queries/ChannelEditQueries/useEditChannelOnCluster';
 import { invalidateClusterDetailsQueries } from '~/queries/ClusterDetailsQueries/useFetchClusterDetails';
-import { ClusterWithPermissions } from '~/types/types';
+import { AugmentedCluster } from '~/types/types';
 
 import { formatChannelName } from '../../../clusterDetailsHelper';
 
@@ -133,9 +133,9 @@ const ChannelEditModal = ({
   ) : null;
 };
 
-export const ChannelEdit = ({ cluster }: { cluster: ClusterWithPermissions }) => {
+export const ChannelEdit = ({ cluster }: { cluster: AugmentedCluster }) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
-  const { canEdit } = cluster;
+  const { canUpdateClusterResource } = cluster;
   const isClusterReady = cluster.state === clusterStates.ready;
   const { availableDropdownChannels, isLoading } = useGetChannelsData(cluster);
   const hasChannelOptions = (availableDropdownChannels?.length ?? 0) > 0;
@@ -166,13 +166,15 @@ export const ChannelEdit = ({ cluster }: { cluster: ClusterWithPermissions }) =>
         </DescriptionListTerm>
         <DescriptionListDescription>
           {formatChannelName(cluster?.channel ?? '')}
-          {canEdit && isLoading ? <Spinner size="sm" aria-label="Loading..." /> : null}
-          {canEdit && !isLoading && hasChannelOptions ? (
+          {canUpdateClusterResource && isLoading ? (
+            <Spinner size="sm" aria-label="Loading..." />
+          ) : null}
+          {canUpdateClusterResource && !isLoading && hasChannelOptions ? (
             <EditButton
               data-testid="channelModal"
               ariaLabel="editChannelBtn"
               onClick={() => setIsModalOpen(true)}
-              isAriaDisabled={!canEdit || !isClusterReady}
+              isAriaDisabled={!canUpdateClusterResource || !isClusterReady}
             />
           ) : null}
         </DescriptionListDescription>

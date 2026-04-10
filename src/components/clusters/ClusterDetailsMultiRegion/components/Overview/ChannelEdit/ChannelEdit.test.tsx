@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { render, screen, waitFor } from '~/testUtils';
-import { ClusterWithPermissions } from '~/types/types';
+import { AugmentedCluster } from '~/types/types';
 
 import { useEditChannelOnCluster } from '../../../../../../queries/ChannelEditQueries/useEditChannelOnCluster';
 import fixtures from '../../../__tests__/ClusterDetails.fixtures';
@@ -51,10 +51,10 @@ describe('<ChannelEdit />', () => {
   let mutateMock: jest.Mock;
 
   const mockedROSAHyperShiftCluster = fixtures.ROSAHypershiftClusterDetails
-    .cluster as unknown as ClusterWithPermissions;
+    .cluster as unknown as AugmentedCluster;
 
   const mockedROSAHyperShiftWaitingCluster = fixtures.ROSAHypershiftWaitingClusterDetails
-    .cluster as unknown as ClusterWithPermissions;
+    .cluster as unknown as AugmentedCluster;
 
   beforeEach(() => {
     mutateMock = jest.fn();
@@ -76,7 +76,11 @@ describe('<ChannelEdit />', () => {
     render(
       <ChannelEdit
         cluster={
-          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -94,7 +98,11 @@ describe('<ChannelEdit />', () => {
     render(
       <ChannelEdit
         cluster={
-          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -118,7 +126,8 @@ describe('<ChannelEdit />', () => {
           {
             ...mockedROSAHyperShiftWaitingCluster,
             channel: 'stable-4.16',
-          } as ClusterWithPermissions
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -138,7 +147,13 @@ describe('<ChannelEdit />', () => {
 
     render(
       <ChannelEdit
-        cluster={{ ...mockedROSAHyperShiftCluster, channel: '' } as ClusterWithPermissions}
+        cluster={
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: '',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
+        }
       />,
     );
 
@@ -154,7 +169,11 @@ describe('<ChannelEdit />', () => {
     render(
       <ChannelEdit
         cluster={
-          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -169,10 +188,10 @@ describe('<ChannelEdit />', () => {
       isLoading: false,
     });
 
-    const nonEditableCluster = { ...mockedROSAHyperShiftCluster, canEdit: false };
+    const nonEditableCluster = { ...mockedROSAHyperShiftCluster, canUpdateClusterResource: false };
     render(
       <ChannelEdit
-        cluster={{ ...nonEditableCluster, channel: 'stable-4.16' } as ClusterWithPermissions}
+        cluster={{ ...nonEditableCluster, channel: 'stable-4.16' } as AugmentedCluster}
       />,
     );
 
@@ -189,7 +208,11 @@ describe('<ChannelEdit />', () => {
     const { user } = render(
       <ChannelEdit
         cluster={
-          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -210,7 +233,11 @@ describe('<ChannelEdit />', () => {
     const { user } = render(
       <ChannelEdit
         cluster={
-          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -234,7 +261,11 @@ describe('<ChannelEdit />', () => {
     const { user } = render(
       <ChannelEdit
         cluster={
-          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -263,7 +294,8 @@ describe('<ChannelEdit />', () => {
             ...mockedROSAHyperShiftCluster,
             channel: 'stable-4.16',
             id: 'cluster-123',
-          } as ClusterWithPermissions
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
@@ -295,7 +327,11 @@ describe('<ChannelEdit />', () => {
     const { user } = render(
       <ChannelEdit
         cluster={
-          { ...mockedROSAHyperShiftCluster, channel: 'stable-4.16' } as ClusterWithPermissions
+          {
+            ...mockedROSAHyperShiftCluster,
+            channel: 'stable-4.16',
+            canUpdateClusterResource: true,
+          } as AugmentedCluster
         }
       />,
     );
