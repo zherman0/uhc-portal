@@ -63,6 +63,34 @@ describe('<ExternalAuthProviderModal />', () => {
     expect(mockModalData.onClose).toHaveBeenCalled();
   });
 
+  it('disables Add until the user changes the form', () => {
+    render(
+      <ExternalAuthProviderModal
+        clusterID={mockModalData.clusterId}
+        onClose={mockModalData.onClose}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Add' })).toBeDisabled();
+  });
+
+  it('disables Save until the form is edited', async () => {
+    const { user } = render(
+      <ExternalAuthProviderModal
+        clusterID={mockModalData.clusterId}
+        onClose={mockModalData.onClose}
+        externalAuthProvider={mockModalData.provider as any}
+        isEdit
+      />,
+    );
+
+    const saveButton = screen.getByRole('button', { name: 'Save' });
+    expect(saveButton).toBeDisabled();
+
+    await user.type(screen.getByRole('textbox', { name: 'Issuer URL' }), 'x');
+
+    expect(saveButton).not.toBeDisabled();
+  });
+
   it('calls post api on Add', async () => {
     const apiReturnValue = {
       data: {
