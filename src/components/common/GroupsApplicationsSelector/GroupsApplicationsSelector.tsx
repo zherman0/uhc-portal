@@ -65,13 +65,14 @@ const getDescendantLeafIds = (node: LogForwardingGroupTreeNode): string[] => {
 };
 
 const getLeavesById = (node: LogForwardingGroupTreeNode): Record<string, string[]> => {
-  let leavesById: Record<string, string[]> = {};
-  if (!node.children || !node.children.length) {
+  const leavesById: Record<string, string[]> = {};
+  if (!node.children?.length) {
     leavesById[node.id] = [node.id];
   } else {
+    const descendantLeaves = getDescendantLeafIds(node);
+    leavesById[node.id] = descendantLeaves;
     node.children.forEach((child) => {
-      leavesById[node.id] = getDescendantLeafIds(node);
-      leavesById = { ...leavesById, ...getLeavesById(child) };
+      Object.assign(leavesById, getLeavesById(child));
     });
   }
   return leavesById;

@@ -21,6 +21,22 @@ const minimalTree: LogForwardingGroupTreeNode[] = [
   { id: 'solo-leaf', text: 'Standalone' },
 ];
 
+/** minimalTree plus grp → nested → leaf (three levels) to guard depth > 2 regressions. */
+const minimalTreeWithDeepNesting: LogForwardingGroupTreeNode[] = [
+  ...minimalTree,
+  {
+    id: 'grp-top',
+    text: 'Top Group',
+    children: [
+      {
+        id: 'nested',
+        text: 'Nested',
+        children: [{ id: 'deep-leaf', text: 'Deep App' }],
+      },
+    ],
+  },
+];
+
 function TestShell({
   children,
   initialValues = { [FIELD_NAME]: [] as string[] },
@@ -125,6 +141,27 @@ describe('<GroupsApplicationsSelector />', () => {
     );
     const submitted = onSubmit.mock.calls[0][0][FIELD_NAME] as string[];
     expect(submitted).toHaveLength(2);
+  });
+
+  it('includes deeply nested leaves when selecting a top-level group (depth > 2)', async () => {
+    const onSubmit = jest.fn();
+    const { user } = render(
+      <TestShell onSubmit={onSubmit}>
+        <GroupsApplicationsSelector name={FIELD_NAME} treeData={minimalTreeWithDeepNesting} />
+      </TestShell>,
+    );
+
+    await user.click(screen.getByRole('checkbox', { name: 'Select Top Group' }));
+
+    expect(screen.getByRole('button', { name: 'Remove Deep App' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(onSubmit).toHaveBeenCalledWith(
+      { [FIELD_NAME]: expect.arrayContaining(['deep-leaf']) },
+      expect.anything(),
+    );
+    const submitted = onSubmit.mock.calls[0][0][FIELD_NAME] as string[];
+    expect(submitted).toContain('deep-leaf');
   });
 
   it('unchecking a parent group clears its leaves from the value', async () => {

@@ -11,9 +11,12 @@ export type LogForwardingSelectedLeavesGroup = {
   leaves: { id: string; text: string }[];
 };
 
-/** Leaves under a wizard root: log-forwarding trees are group → apps (depth ≤ 2), never deeper. */
+/** All descendant leaf nodes (nodes with no children) under `node`. */
 function getLeafDescendants(node: LogForwardingGroupTreeNode): LogForwardingGroupTreeNode[] {
-  return node.children?.length ? node.children : [node];
+  if (!node.children?.length) {
+    return [node];
+  }
+  return node.children.flatMap((child) => getLeafDescendants(child));
 }
 
 /** Groups selected leaves (id + label) under each top-level tree node. */
