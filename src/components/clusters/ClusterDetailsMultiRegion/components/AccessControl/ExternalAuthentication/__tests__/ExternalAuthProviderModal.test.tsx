@@ -104,6 +104,13 @@ describe('<ExternalAuthProviderModal />', () => {
     const issuerInput = screen.getByRole('textbox', { name: 'Issuer URL' });
     await user.clear(issuerInput);
     await user.type(issuerInput, 'http://redhat.com');
+    await user.tab();
+
+    expect(await screen.findByText('URL must be https')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Issuer URL' })).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
 
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
