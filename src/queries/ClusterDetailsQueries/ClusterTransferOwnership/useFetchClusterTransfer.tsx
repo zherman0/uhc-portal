@@ -34,9 +34,7 @@ export const useFetchClusterTransfer = ({
 
   const dispatch = useDispatch();
 
-  /* Paginated search uses viewOptions in the request; external-ID lookup does not. Putting the
-   * whole viewOptions slice in the key for external-ID fetches tied query identity to Redux: this
-   * hook dispatches onSetTotal → viewOptions changes → new queryKey → refetch → loop (React #185). */
+  /* Don't worry about pagination when fetching one transfer or we might get an infinite loop. */
   const isPaginatedSearch = !clusterExternalID;
 
   const { data, isLoading, isError, error } = useQuery({
