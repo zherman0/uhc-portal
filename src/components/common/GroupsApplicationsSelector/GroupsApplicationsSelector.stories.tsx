@@ -3,7 +3,11 @@ import { Form, Formik } from 'formik';
 
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { mockLogForwardingGroupTree } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingGroupTreeData';
+import {
+  mockLogForwardingGroupTree,
+  mockLogForwardingGroupTreeLabelGroupOverflow,
+  mockLogForwardingGroupTreeLabelGroupOverflowAllLeafIds,
+} from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingGroupTreeData';
 
 import {
   GroupsApplicationsSelector,
@@ -109,6 +113,15 @@ export const FullGroupSelected: Story = {
   args: {
     treeData: MOCK_TREE_DATA,
     initialSelectedIds: ['api-audit', 'api-server'],
+  },
+};
+
+/** Selected pane LabelGroup overflow: more than `numLabels` (8) leaves in one group → “$N more”. */
+export const LabelGroupOverflow: Story = {
+  name: 'Label group overflow',
+  args: {
+    treeData: mockLogForwardingGroupTreeLabelGroupOverflow,
+    initialSelectedIds: [...mockLogForwardingGroupTreeLabelGroupOverflowAllLeafIds],
   },
 };
 
