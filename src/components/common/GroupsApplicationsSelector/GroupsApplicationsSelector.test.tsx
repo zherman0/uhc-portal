@@ -222,7 +222,7 @@ describe('<GroupsApplicationsSelector />', () => {
       </TestShell>,
     );
 
-    const search = screen.getByRole('textbox', { name: 'Search input' });
+    const search = screen.getByRole('textbox', { name: 'Filter groups and applications' });
     await user.type(search, 'zzzz-no-match');
 
     expect(screen.getByText('No results found')).toBeInTheDocument();
@@ -257,7 +257,7 @@ describe('<GroupsApplicationsSelector />', () => {
       </TestShell>,
     );
 
-    expect(screen.getByRole('textbox', { name: 'Search input' })).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: 'Filter groups and applications' })).toBeDisabled();
     expect(screen.getByRole('checkbox', { name: 'Select Group A' })).toBeDisabled();
 
     await user.click(screen.getByRole('checkbox', { name: 'Select Group A' }));

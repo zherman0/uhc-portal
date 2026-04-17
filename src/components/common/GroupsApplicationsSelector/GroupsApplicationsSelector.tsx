@@ -246,6 +246,7 @@ export function GroupsApplicationsSelector({
             <StackItem>{paneHeading(availableTitle, isRequired, availableTooltip)}</StackItem>
             <StackItem>
               <SearchInput
+                aria-label="Filter groups and applications"
                 value={treeFilter}
                 onChange={(_event, value) => setTreeFilter(value)}
                 onClear={() => setTreeFilter('')}
@@ -272,8 +273,12 @@ export function GroupsApplicationsSelector({
                 }}
               >
                 {chosenLeafIds.length === 0 ? (
-                  <EmptyState headingLevel="h4" titleText="" variant={EmptyStateVariant.sm}>
-                    <EmptyStateBody>No groups or applications selected</EmptyStateBody>
+                  <EmptyState
+                    headingLevel="h4"
+                    titleText="No groups or applications selected"
+                    variant={EmptyStateVariant.sm}
+                  >
+                    <EmptyStateBody>Select items from the list on the left.</EmptyStateBody>
                   </EmptyState>
                 ) : (
                   <Stack hasGutter>
