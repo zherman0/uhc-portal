@@ -22,7 +22,11 @@ import {
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
 import type { LogForwardingGroupTreeNode } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingGroupTreeData';
-import { groupSelectedLeavesByRoot } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingReviewHelpers';
+import {
+  buildLogForwardingGroupTreeTextById,
+  getLogForwardingGroupTreeLeavesById,
+  groupSelectedLeavesByRoot,
+} from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingReviewHelpers';
 import PopoverHint from '~/components/common/PopoverHint';
 
 export type GroupsApplicationsSelectorProps = {
@@ -37,45 +41,6 @@ export type GroupsApplicationsSelectorProps = {
   availableTooltip?: React.ReactNode;
   chosenTooltip?: React.ReactNode;
   listMinHeight?: string;
-};
-
-const buildTextById = (node: LogForwardingGroupTreeNode): Record<string, string> => {
-  let textById: Record<string, string> = {};
-  if (!node) {
-    return textById;
-  }
-  textById[node.id] = node.text;
-  if (node.children) {
-    node.children.forEach((child) => {
-      textById = { ...textById, ...buildTextById(child) };
-    });
-  }
-  return textById;
-};
-
-const getDescendantLeafIds = (node: LogForwardingGroupTreeNode): string[] => {
-  if (!node.children || !node.children.length) {
-    return [node.id];
-  }
-  let childrenIds: string[] = [];
-  node.children.forEach((child) => {
-    childrenIds = [...childrenIds, ...getDescendantLeafIds(child)];
-  });
-  return childrenIds;
-};
-
-const getLeavesById = (node: LogForwardingGroupTreeNode): Record<string, string[]> => {
-  const leavesById: Record<string, string[]> = {};
-  if (!node.children?.length) {
-    leavesById[node.id] = [node.id];
-  } else {
-    const descendantLeaves = getDescendantLeafIds(node);
-    leavesById[node.id] = descendantLeaves;
-    node.children.forEach((child) => {
-      Object.assign(leavesById, getLeavesById(child));
-    });
-  }
-  return leavesById;
 };
 
 const matchesFilter = (value: string, filter: string) =>
@@ -123,8 +88,8 @@ export function GroupsApplicationsSelector({
     let leavesById: Record<string, string[]> = {};
     let nodeTexts: Record<string, string> = {};
     treeData.forEach((root) => {
-      nodeTexts = { ...nodeTexts, ...buildTextById(root) };
-      leavesById = { ...leavesById, ...getLeavesById(root) };
+      nodeTexts = { ...nodeTexts, ...buildLogForwardingGroupTreeTextById(root) };
+      leavesById = { ...leavesById, ...getLogForwardingGroupTreeLeavesById(root) };
     });
     return {
       memoizedLeavesById: leavesById,

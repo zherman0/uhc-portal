@@ -12,11 +12,45 @@ export type LogForwardingSelectedLeavesGroup = {
 };
 
 /** All descendant leaf nodes (nodes with no children) under `node`. */
-function getLeafDescendants(node: LogForwardingGroupTreeNode): LogForwardingGroupTreeNode[] {
+export function getLeafDescendants(node: LogForwardingGroupTreeNode): LogForwardingGroupTreeNode[] {
   if (!node.children?.length) {
     return [node];
   }
   return node.children.flatMap((child) => getLeafDescendants(child));
+}
+
+/** Maps every node `id` in the subtree to its display `text` (for filtering and labels). */
+export function buildLogForwardingGroupTreeTextById(
+  node: LogForwardingGroupTreeNode,
+): Record<string, string> {
+  if (!node) {
+    return {};
+  }
+  let textById: Record<string, string> = { [node.id]: node.text };
+  if (node.children) {
+    node.children.forEach((child) => {
+      textById = { ...textById, ...buildLogForwardingGroupTreeTextById(child) };
+    });
+  }
+  return textById;
+}
+
+/**
+ * For each node in the subtree, the list of descendant leaf ids (including the node itself when it
+ * is a leaf). Used to resolve checkbox scope for parents vs leaves.
+ */
+export function getLogForwardingGroupTreeLeavesById(
+  node: LogForwardingGroupTreeNode,
+): Record<string, string[]> {
+  const leavesById: Record<string, string[]> = {
+    [node.id]: getLeafDescendants(node).map((leaf) => leaf.id),
+  };
+  if (node.children?.length) {
+    node.children.forEach((child) => {
+      Object.assign(leavesById, getLogForwardingGroupTreeLeavesById(child));
+    });
+  }
+  return leavesById;
 }
 
 /** Groups selected leaves (id + label) under each top-level tree node. */
