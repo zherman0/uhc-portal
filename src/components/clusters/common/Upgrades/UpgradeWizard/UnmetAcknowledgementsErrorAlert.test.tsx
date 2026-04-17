@@ -5,6 +5,8 @@ import { ErrorState } from '~/types/types';
 
 import UnmetAcknowledgementsErrorAlert from './UnmetAcknowledgementsErrorAlert';
 
+type ErrorAlertError = React.ComponentProps<typeof UnmetAcknowledgementsErrorAlert>['error'];
+
 const baseError: Pick<
   ErrorState,
   'operationID' | 'message' | 'errorDetails' | 'errorMessage' | 'errorCode' | 'reason'
@@ -119,6 +121,75 @@ describe('<UnmetAcknowledgementsErrorAlert />', () => {
 
     expect(screen.getByRole('list')).toBeInTheDocument();
     expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+  });
+
+  it('tolerates undefined error at runtime (optional chaining on props)', () => {
+    render(<UnmetAcknowledgementsErrorAlert error={undefined as unknown as ErrorAlertError} />);
+
+    expect(
+      screen.getByRole('heading', { name: /A problem occurred with that selected version/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+  });
+
+  it('handles sparse error (undefined details, message, operation ID) for optional chaining', () => {
+    render(
+      <UnmetAcknowledgementsErrorAlert
+        error={
+          {
+            reason: 'Top-level reason only',
+            errorDetails: undefined,
+            errorMessage: undefined,
+            operationID: undefined,
+            message: undefined,
+            errorCode: undefined,
+          } as ErrorAlertError
+        }
+      />,
+    );
+
+    expect(
+      screen.getByRole('heading', { name: /A problem occurred with that selected version/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+  });
+
+  it('joins multiple nested validation_error_* reasons in one detail row with newlines', () => {
+    render(
+      <UnmetAcknowledgementsErrorAlert
+        error={{
+          ...baseError,
+          errorDetails: [
+            {
+              validation_error_1: { reason: 'First nested' },
+              validation_error_2: { reason: 'Second nested' },
+            },
+          ] as any,
+        }}
+      />,
+    );
+
+    const list = screen.getByRole('list');
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(1);
+    expect(items[0]).toHaveTextContent('First nested');
+    expect(items[0]).toHaveTextContent('Second nested');
+  });
+
+  it('renders a row with no message when detail has no extractable reason (empty object)', () => {
+    render(
+      <UnmetAcknowledgementsErrorAlert
+        error={{
+          ...baseError,
+          errorDetails: [{}, { reason: 'Has reason' }] as any,
+        }}
+      />,
+    );
+
+    const items = within(screen.getByRole('list')).getAllByRole('listitem');
+    expect(items).toHaveLength(2);
+    expect(items[0].textContent?.trim()).toBe('');
+    expect(items[1]).toHaveTextContent('Has reason');
   });
 
   it('is accessible', async () => {

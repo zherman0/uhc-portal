@@ -1,0 +1,92 @@
+{
+  "versionGatesOnly": {
+    "kind": "Error",
+    "id": "400",
+    "href": "/api/clusters_mgmt/v1/errors/400",
+    "code": "CLUSTERS-MGMT-400",
+    "reason": "There are missing version gate agreements for this cluster. See details.",
+    "details": [
+      {
+        "kind": "VersionGate",
+        "id": "8c046910-2493-11f1-8a97-0a580a8319ee",
+        "href": "/api/clusters_mgmt/v1/version_gates/8c046910-2493-11f1-8a97-0a580a8319ee",
+        "version_raw_id_prefix": "4.20",
+        "label": "api.openshift.com/gate-sts",
+        "value": "4.20",
+        "warning_message": "STS roles must be updated with 4.20 permissions before the cluster can be updated to OpenShift 4.20. Failure to update the roles before cluster update will cause cluster control plane degradation.",
+        "description": "OpenShift STS clusters include new required cloud provider permissions in OpenShift 4.20.",
+        "documentation_url": "https://access.redhat.com/solutions/6808671",
+        "sts_only": true,
+        "cluster_condition": "",
+        "creation_timestamp": "2026-03-20T19:32:35.308777Z"
+      },
+      {
+        "kind": "VersionGate",
+        "id": "f4bc2c7f-44f4-11f0-bf0c-0a580a8110be",
+        "href": "/api/clusters_mgmt/v1/version_gates/f4bc2c7f-44f4-11f0-bf0c-0a580a8110be",
+        "version_raw_id_prefix": "4.20",
+        "label": "api.openshift.com/gate-ocp",
+        "value": "4.20",
+        "warning_message": "To prevent an outage on your cluster, review any APIs in use that will be removed or changed, and migrate them to the appropriate new API version. Failure to evaluate and migrate components affected by this update can cause some types of workloads to stop functioning.",
+        "description": "OpenShift removes or modifies several Kubernetes APIs in OpenShift 4.20.",
+        "documentation_url": "https://github.com/openshift/ops-sop/blob/master/v4/knowledge_base/upgrade-acknowledgements/README.md#create-version-gates-in-ocm",
+        "sts_only": false,
+        "cluster_condition": "",
+        "creation_timestamp": "2025-06-09T05:45:31.716724Z"
+      }
+    ],
+    "operation_id": "559490fd-5fcb-49ec-89cd-625e9fcbaee1",
+    "timestamp": "2026-03-23T23:28:26.291056202Z"
+  },
+  "aggregatedValidation": {
+    "kind": "Error",
+    "id": "400",
+    "href": "/api/clusters_mgmt/v1/errors/400",
+    "code": "CLUSTERS-MGMT-400",
+    "reason": "Upgrade failed on validation checks - see details for more information",
+    "details": [
+      {
+        "validation_error_1": {
+          "reason": "Role 'arn:aws:iam::720424066366:role/zac419b-Installer-Role' is not compatible with version 'openshift-v4.20.16'",
+          "details": [{ "Error_Key": "VersionNotSupportedByAccountRoleTag" }],
+          "timestamp": "0001-01-01T00:00:00Z"
+        },
+        "validation_error_2": {
+          "reason": "Second is not compatible with version 'openshift-v4.20.16'",
+          "details": [{ "Error_Key": "VersionNotSupportedByAccountRoleTag" }],
+          "timestamp": "0001-01-01T00:00:00Z"
+        },
+        "validation_error_3": {
+          "reason": "Third is not compatible with version 'openshift-v4.20.16'",
+          "details": [{ "Error_Key": "VersionNotSupportedByAccountRoleTag" }],
+          "timestamp": "0001-01-01T00:00:00Z"
+        }
+      }
+    ],
+    "operation_id": "d2d2aaa7-7a86-4f31-a2d5-47c61c7d020b",
+    "timestamp": "2026-03-23T23:08:15.759944303Z"
+  },
+  "nonAggregatedXhr": {
+    "kind": "Error",
+    "id": "400",
+    "href": "/api/clusters_mgmt/v1/errors/400",
+    "code": "CLUSTERS-MGMT-400",
+    "reason": "Role 'arn:aws:iam::720424066366:role/zac419b-Installer-Role' is not compatible with version 'openshift-v4.20.16'",
+    "details": [{ "Error_Key": "VersionNotSupportedByAccountRoleTag" }],
+    "operation_id": "fac40ae1-243f-4af5-a136-a84cecce31c9",
+    "timestamp": "2026-03-23T23:07:01.562533295Z"
+  },
+  "mixedVersionGateAndError": {
+    "kind": "Error",
+    "id": "400",
+    "href": "/api/clusters_mgmt/v1/errors/400",
+    "code": "CLUSTERS-MGMT-400",
+    "reason": "Mixed VersionGate and non-gate detail rows (fixture for unit test)",
+    "details": [
+      { "kind": "VersionGate", "id": "g1", "href": "/api/clusters_mgmt/v1/version_gates/g1" },
+      { "kind": "Error", "id": "e1", "href": "/api/clusters_mgmt/v1/errors/e1" }
+    ],
+    "operation_id": "00000000-0000-0000-0000-000000000001",
+    "timestamp": "2026-03-23T00:00:00.000000000Z"
+  }
+}

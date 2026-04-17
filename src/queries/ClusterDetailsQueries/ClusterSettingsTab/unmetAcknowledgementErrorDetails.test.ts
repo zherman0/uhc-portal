@@ -49,6 +49,11 @@ describe('resolveUnmetAcknowledgementErrorDetailsForUi', () => {
         },
       ]);
     });
+
+    it('leaves non-object and array detail entries unchanged', () => {
+      const details = [null, 'raw-string', ['nested'], { other: 'no-error-key' }] as unknown[];
+      expect(resolveUnmetAcknowledgementErrorDetailsForUi(false, details, 'top')).toEqual(details);
+    });
   });
 
   describe('aggregated (validation_error_N with nested reason)', () => {
@@ -93,6 +98,24 @@ describe('resolveUnmetAcknowledgementErrorDetailsForUi', () => {
         bundled[0].validation_error_2,
         bundled[0].validation_error_3,
       ]);
+    });
+
+    it('wraps null, primitive, array, or non-validation_error rows as single list items', () => {
+      const sparse = [
+        null,
+        'not-an-object',
+        ['array-row'],
+        { not_validation: 'only other keys' },
+      ] as unknown[];
+      expect(resolveUnmetAcknowledgementErrorDetailsForUi(true, sparse, 'ignored')).toEqual(sparse);
+    });
+
+    it('returns one row unchanged when a detail has only one validation_error_* key among other keys', () => {
+      const row = {
+        foo: 'bar',
+        validation_error_1: { reason: 'only one gate', details: [] },
+      };
+      expect(resolveUnmetAcknowledgementErrorDetailsForUi(true, [row], 'ignored')).toEqual([row]);
     });
   });
 

@@ -1,10 +1,10 @@
 /**
  * Normalization for upgrade dry-run `error.details` from POST upgrade_policies (dryRun).
- * Two stable shapes (see upgrade_policies_xhr.json vs upgrade3.json):
+ * Two stable shapes (see `__fixtures__/upgrade_policies.json`: `nonAggregatedXhr` vs `aggregatedValidation`):
  *
  * - **Non-aggregated**: `details` is `[{ Error_Key: string }]`; the human message is only on the
  *   error object’s top-level `reason`. We copy that onto each detail row for the UI.
- * - **Aggregated**: each `details[i]` is either one validation wrapper (`upgrade3.json`) or one
+ * - **Aggregated**: each `details[i]` is either one validation wrapper (`aggregatedValidation`) or one
  *   object with several `validation_error_*` keys. When there is more than one such key, we map to
  *   those values so the alert can list each validation separately.
  */
