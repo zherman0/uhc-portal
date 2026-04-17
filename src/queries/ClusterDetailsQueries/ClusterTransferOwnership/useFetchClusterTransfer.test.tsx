@@ -116,6 +116,80 @@ describe('useFetchClusterTransfer', () => {
     expect(result.current.data).toEqual(searchResponse.data);
   });
 
+  it('uses updated_at desc when sort field is empty', async () => {
+    useGlobalStateMock.mockImplementation((selector: (s: unknown) => unknown) =>
+      selector({
+        viewOptions: {
+          [viewConstants.CLUSTER_TRANSFER_VIEW]: {
+            ...defaultViewOptions,
+            sorting: { ...defaultViewOptions.sorting, sortField: '' },
+          },
+        },
+      }),
+    );
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+
+    const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 't-sort' }));
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(searchClusterTransfersSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: 'updated_at desc' }),
+    );
+    expect(result.current.isError).toBe(false);
+  });
+
+  it('uses ascending order when view sort is ascending', async () => {
+    useGlobalStateMock.mockImplementation((selector: (s: unknown) => unknown) =>
+      selector({
+        viewOptions: {
+          [viewConstants.CLUSTER_TRANSFER_VIEW]: {
+            ...defaultViewOptions,
+            sorting: {
+              ...defaultViewOptions.sorting,
+              sortField: 'name',
+              isAscending: true,
+            },
+          },
+        },
+      }),
+    );
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+
+    const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 't-asc' }));
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(searchClusterTransfersSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: 'name asc' }),
+    );
+    expect(result.current.isError).toBe(false);
+  });
+
+  it('falls back to page 1 and size 20 when view options are zero', async () => {
+    useGlobalStateMock.mockImplementation((selector: (s: unknown) => unknown) =>
+      selector({
+        viewOptions: {
+          [viewConstants.CLUSTER_TRANSFER_VIEW]: {
+            ...defaultViewOptions,
+            currentPage: 0,
+            pageSize: 0,
+          },
+        },
+      }),
+    );
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+
+    const { result } = renderHook(() => useFetchClusterTransfer({ filter: `id='x'` }));
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(searchClusterTransfersSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ page: 1, size: 20 }),
+    );
+    expect(result.current.isError).toBe(false);
+  });
+
   it('uses custom filter when provided', async () => {
     searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
 
@@ -184,6 +258,59 @@ describe('useFetchClusterTransfer', () => {
     });
 
     expect(result.current.data).toEqual({ items: [pendingItem] });
+  });
+
+  it('returns accepted transfer slice when showPendingTransfer matches accepted status', async () => {
+    const acceptedItem = {
+      id: 'ta',
+      cluster_uuid: 'ext-a',
+      status: 'accepted',
+    };
+    getClusterTransferByExternalIDSpy.mockResolvedValueOnce({
+      data: { items: [acceptedItem], total: 1 },
+    } as never);
+
+    const { result } = renderHook(() =>
+      useFetchClusterTransfer({
+        clusterExternalID: 'ext-a',
+        showPendingTransfer: true,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.data).toEqual({ items: [acceptedItem] });
+  });
+
+  it('returns empty object in items when showPendingTransfer finds no pending or accepted row', async () => {
+    getClusterTransferByExternalIDSpy.mockResolvedValueOnce({
+      data: {
+        items: [{ id: 'done', cluster_uuid: 'ext-z', status: 'completed' }],
+        total: 1,
+      },
+    } as never);
+
+    const { result } = renderHook(() =>
+      useFetchClusterTransfer({
+        clusterExternalID: 'ext-z',
+        showPendingTransfer: true,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(result.current.data).toEqual({ items: [{}] });
+  });
+
+  it('does not dispatch total when search response has no total field', async () => {
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [] } } as never);
+
+    const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 'no-total' }));
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    expect(mockedDispatch).not.toHaveBeenCalled();
+    expect(result.current.data).toEqual({ items: [] });
   });
 
   it('returns formatted error when the request fails', async () => {
