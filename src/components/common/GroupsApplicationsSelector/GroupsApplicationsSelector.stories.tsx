@@ -4,15 +4,14 @@ import { Form, Formik } from 'formik';
 import type { Meta, StoryObj } from '@storybook/react';
 
 import {
-  mockLogForwardingGroupTree,
-  mockLogForwardingGroupTreeLabelGroupOverflow,
-  mockLogForwardingGroupTreeLabelGroupOverflowAllLeafIds,
-} from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingGroupTreeData';
-
-import {
   GroupsApplicationsSelector,
   type GroupsApplicationsSelectorProps,
 } from './GroupsApplicationsSelector';
+import {
+  mockLogForwardingGroupTree,
+  mockLogForwardingGroupTreeLabelGroupOverflow,
+  mockLogForwardingGroupTreeLabelGroupOverflowAllLeafIds,
+} from './logForwardingGroupTreeData';
 
 /**
  * Stories use mock `treeData` only. The shared `GroupsApplicationsSelector` does not import the

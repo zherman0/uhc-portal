@@ -1,11 +1,11 @@
 import React from 'react';
 import { Form, Formik } from 'formik';
 
-import type { LogForwardingGroupTreeNode } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingGroupTreeData';
-import { mockLogForwardingGroupTree } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingGroupTreeData';
 import { checkAccessibility, render, screen, within } from '~/testUtils';
 
 import { GroupsApplicationsSelector } from './GroupsApplicationsSelector';
+import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
+import { mockLogForwardingGroupTree } from './logForwardingGroupTreeData';
 
 const FIELD_NAME = 'groupsApplicationsSelection';
 

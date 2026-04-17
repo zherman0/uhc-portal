@@ -21,13 +21,14 @@ import {
 } from '@patternfly/react-core';
 import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
-import type { LogForwardingGroupTreeNode } from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingGroupTreeData';
+import PopoverHint from '~/components/common/PopoverHint';
+
+import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
 import {
   buildLogForwardingGroupTreeTextById,
   getLogForwardingGroupTreeLeavesById,
   groupSelectedLeavesByRoot,
-} from '~/components/clusters/wizards/rosa/LogForwarding/logForwardingReviewHelpers';
-import PopoverHint from '~/components/common/PopoverHint';
+} from './logForwardingReviewHelpers';
 
 export type GroupsApplicationsSelectorProps = {
   /** Formik field name; value is an array of selected leaf node ids. */
