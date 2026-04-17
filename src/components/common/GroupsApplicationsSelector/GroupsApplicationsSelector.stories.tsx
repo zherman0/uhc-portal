@@ -59,6 +59,17 @@ const meta = {
       description:
         'Mock tree (`mockLogForwardingGroupTree`). Required for this presentational component.',
     },
+    isRequired: {
+      description: 'Marks the field required (asterisk / validation messaging).',
+    },
+    availableTooltip: {
+      control: 'text',
+      description: 'Help popover beside the available list title.',
+    },
+    chosenTooltip: {
+      control: 'text',
+      description: 'Help popover beside the chosen list title.',
+    },
   },
   render: (args: StoryArgs) => <StoryFormikShell {...args} />,
   decorators: [
@@ -74,10 +85,14 @@ export default meta;
 
 type Story = StoryObj<StoryArgs>;
 
-export const Empty: Story = {
-  name: 'No selection',
+/** Primary documentation canvas: empty selection by default; use Controls for required + tooltips. */
+export const Docs: Story = {
   args: {
     treeData: MOCK_TREE_DATA,
+    initialSelectedIds: [],
+    isRequired: false,
+    availableTooltip: 'Choose which control plane log sources to forward.',
+    chosenTooltip: 'Remove individual apps or an entire group with the row action.',
   },
 };
 
@@ -97,30 +112,10 @@ export const FullGroupSelected: Story = {
   },
 };
 
-export const Required: Story = {
-  name: 'Required field',
-  args: {
-    treeData: MOCK_TREE_DATA,
-    isRequired: true,
-    initialSelectedIds: ['sample-app'],
-  },
-};
-
 export const Disabled: Story = {
   args: {
     treeData: MOCK_TREE_DATA,
     isDisabled: true,
     initialSelectedIds: ['auth-kube-apiserver', 'api-server'],
-  },
-};
-
-export const WithTooltips: Story = {
-  name: 'With help popovers',
-  args: {
-    treeData: MOCK_TREE_DATA,
-    isRequired: true,
-    availableTooltip: 'Choose which control plane log sources to forward.',
-    chosenTooltip: 'Remove individual apps or an entire group with the row action.',
-    initialSelectedIds: ['auth-konnectivity-agent'],
   },
 };
