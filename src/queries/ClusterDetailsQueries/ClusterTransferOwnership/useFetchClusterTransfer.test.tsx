@@ -233,7 +233,7 @@ describe('useFetchClusterTransfer', () => {
     );
   });
 
-  it('returns pending transfer slice when showPendingTransfer is true', async () => {
+  it('returns pending transfer items when showPendingTransfer is true', async () => {
     const pendingItem = {
       id: 'tp',
       cluster_uuid: 'ext-p',
@@ -260,7 +260,7 @@ describe('useFetchClusterTransfer', () => {
     expect(result.current.data).toEqual({ items: [pendingItem] });
   });
 
-  it('returns accepted transfer slice when showPendingTransfer matches accepted status', async () => {
+  it('returns accepted transfer items when showPendingTransfer matches accepted status', async () => {
     const acceptedItem = {
       id: 'ta',
       cluster_uuid: 'ext-a',
