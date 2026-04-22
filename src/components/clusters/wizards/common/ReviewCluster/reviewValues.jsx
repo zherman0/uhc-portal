@@ -391,6 +391,22 @@ const reviewValues = {
     valueTransform: (value) =>
       value ? arrayToString(stringToArrayTrimmed(value)) : 'None specified',
   },
+  defaultRouterExcludeNamespaceSelectors: {
+    title: 'Exclude namespace selectors',
+    valueTransform: (rows) => {
+      if (!rows?.length) {
+        return 'None specified';
+      }
+      const parts = rows
+        .filter((r) => r.key?.trim())
+        .map((r) => {
+          const vals = stringToArrayTrimmed(r.value || '');
+          return vals.length ? `${r.key.trim()}: ${vals.join(', ')}` : null;
+        })
+        .filter(Boolean);
+      return parts.length ? parts.join('; ') : 'None specified';
+    },
+  },
   isDefaultRouterWildcardPolicyAllowed: {
     title: 'Wildcard policy',
     valueTransform: (value) => (value ? 'Allowed' : 'Disallowed'),

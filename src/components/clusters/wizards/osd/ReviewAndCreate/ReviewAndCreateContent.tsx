@@ -209,6 +209,10 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
               formValues={formValues}
             />
             <ReviewItem
+              name={FieldId.DefaultRouterExcludeNamespaceSelectors}
+              formValues={formValues}
+            />
+            <ReviewItem
               name={FieldId.IsDefaultRouterWildcardPolicyAllowed}
               formValues={formValues}
             />

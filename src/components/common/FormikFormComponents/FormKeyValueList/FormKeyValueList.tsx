@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ArrayHelpers, Field } from 'formik';
+import { ArrayHelpers, Field, FormikValues } from 'formik';
 
 import { Button, Grid, GridItem } from '@patternfly/react-core';
 import { MinusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/minus-circle-icon';
@@ -17,40 +17,70 @@ import FormKeyLabelValue from './FormKeyLabelValue';
 
 import './FormKeyValueList.scss';
 
-const FormKeyValueList = ({ push, remove }: ArrayHelpers) => {
-  const {
-    values: { [FieldId.NodeLabels]: nodeLabels },
-    setFieldValue,
-    setFieldTouched,
-    getFieldProps,
-    getFieldMeta,
-    validateForm,
-  } = useFormState();
+type KeyValueRow = { id?: string; key?: string; value?: string };
 
-  const hasInvalidKeys = (fieldsArray: any[]) =>
+export interface FormKeyValueListProps extends ArrayHelpers {
+  arrayFieldName?: string;
+  keyColumnLabel?: string;
+  valueColumnLabel?: string;
+  addButtonLabel?: string;
+  valueInputAriaLabel?: string;
+  validateKey?: (
+    key: string,
+    allValues: Record<string, unknown>,
+    props?: unknown,
+    name?: string,
+  ) => string | undefined;
+  validateValue?: (
+    value: string,
+    allValues: Record<string, unknown>,
+    props?: unknown,
+    name?: string,
+  ) => string | undefined;
+  addButtonDisabledTooltip?: string;
+}
+
+const FormKeyValueList = ({
+  push,
+  remove,
+  arrayFieldName = FieldId.NodeLabels,
+  keyColumnLabel = 'Key',
+  valueColumnLabel = 'Value',
+  addButtonLabel = 'Add additional label',
+  valueInputAriaLabel,
+  validateKey = validateLabelKey,
+  validateValue = validateLabelValue,
+  addButtonDisabledTooltip = nodeKeyValueTooltipText,
+}: FormKeyValueListProps) => {
+  const { values, setFieldValue, setFieldTouched, getFieldProps, getFieldMeta, validateForm } =
+    useFormState();
+
+  const fieldRows = (values as FormikValues)[arrayFieldName] as KeyValueRow[];
+
+  const hasInvalidKeys = (fieldsArray: KeyValueRow[]) =>
     !fieldsArray || fieldsArray.some((field) => !field.key);
 
   useEffect(() => {
-    if (!nodeLabels?.length) {
-      setFieldValue(FieldId.NodeLabels, [{ id: getRandomID() }]);
+    if (!fieldRows?.length) {
+      setFieldValue(arrayFieldName, [{ id: getRandomID() }]);
     }
     validateForm();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nodeLabels, setFieldValue]);
+  }, [fieldRows, setFieldValue, arrayFieldName]);
 
   return (
     <Grid hasGutter>
       <GridItem span={4} className="pf-v6-c-form__label pf-v6-c-form__label-text">
-        Key
+        {keyColumnLabel}
       </GridItem>
       <GridItem span={4} className="pf-v6-c-form__label pf-v6-c-form__label-text">
-        Value
+        {valueColumnLabel}
       </GridItem>
       <GridItem span={4} />
-      {(nodeLabels as any[])?.map((label, index) => {
-        const isRemoveDisabled = index === 0 && nodeLabels.length === 1;
-        const fieldNameLabelKey = `${FieldId.NodeLabels}[${index}].key`;
-        const fieldNameLabelValue = `${FieldId.NodeLabels}[${index}].value`;
+      {(fieldRows as KeyValueRow[])?.map((label, index) => {
+        const isRemoveDisabled = index === 0 && fieldRows.length === 1;
+        const fieldNameLabelKey = `${arrayFieldName}[${index}].key`;
+        const fieldNameLabelValue = `${arrayFieldName}[${index}].value`;
 
         return (
           /* Adding index to fix issue when machine pool entries with same subnets are removed */
@@ -63,12 +93,11 @@ const FormKeyValueList = ({ push, remove }: ArrayHelpers) => {
                 component={FormKeyLabelKey}
                 index={index}
                 validate={(value: string) => {
-                  // since nodeLabels are not up to date on validation
-                  const newNodeLabels = [...nodeLabels];
-                  newNodeLabels[index] = { ...newNodeLabels[index], key: value };
-                  return validateLabelKey(
+                  const newRows = [...fieldRows];
+                  newRows[index] = { ...newRows[index], key: value };
+                  return validateKey(
                     value,
-                    { node_labels: newNodeLabels },
+                    { ...values, [arrayFieldName]: newRows } as FormikValues,
                     undefined,
                     fieldNameLabelKey,
                   );
@@ -89,15 +118,15 @@ const FormKeyValueList = ({ push, remove }: ArrayHelpers) => {
                 type="text"
                 component={FormKeyLabelValue}
                 index={index}
+                valueAriaLabel={valueInputAriaLabel}
                 validate={(value: string) => {
-                  // since nodeLabels are not up to date on validation
-                  const newNodeLabels = [...nodeLabels];
-                  newNodeLabels[index] = { ...newNodeLabels[index], value };
-                  return validateLabelValue(
+                  const newRows = [...fieldRows];
+                  newRows[index] = { ...newRows[index], value };
+                  return validateValue(
                     value,
-                    { node_labels: newNodeLabels },
+                    { ...values, [arrayFieldName]: newRows } as FormikValues,
                     undefined,
-                    fieldNameLabelKey,
+                    fieldNameLabelValue,
                   );
                 }}
                 input={{
@@ -134,9 +163,9 @@ const FormKeyValueList = ({ push, remove }: ArrayHelpers) => {
           variant="link"
           isInline
           className="formKeyValueList-addBtn"
-          disableReason={hasInvalidKeys(nodeLabels) && nodeKeyValueTooltipText}
+          disableReason={hasInvalidKeys(fieldRows) && addButtonDisabledTooltip}
         >
-          Add additional label
+          {addButtonLabel}
         </ButtonWithTooltip>
       </GridItem>
     </Grid>
