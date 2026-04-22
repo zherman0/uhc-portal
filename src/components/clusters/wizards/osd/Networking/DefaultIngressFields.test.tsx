@@ -10,6 +10,9 @@ import { FieldId, initialValues } from '../constants';
 
 import { DefaultIngressFields } from './DefaultIngressFields';
 
+const protectedNamespaceSelectorValidationMessage =
+  'Do not exclude openshift-console or openshift-authentication namespaces; they are vital to cluster operations.';
+
 const renderWithFormik = (values?: Partial<FormikValues>) =>
   render(
     <Formik initialValues={{ ...initialValues, ...values }} onSubmit={() => {}}>
@@ -43,6 +46,27 @@ describe('DefaultIngressFields', () => {
       expect(screen.getByText(ExcludeNamespaceSelectorsHelpText)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Add selector' })).toBeInTheDocument();
       expect(screen.getByText('Values (comma-separated)')).toBeInTheDocument();
+    });
+
+    it('shows protected-namespace validation after entering openshift-console as a selector value', async () => {
+      mockUseFeatureGate([[EXCLUDE_NAMESPACE_SELECTORS, true]]);
+      const { user } = renderWithFormik({ [FieldId.CloudProvider]: CloudProviderType.Gcp });
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('textbox', { name: 'Exclude namespace selector values' }),
+        ).toBeInTheDocument();
+      });
+
+      const keyInput = screen.getByRole('textbox', { name: 'Key-value list key' });
+      const valueInput = screen.getByRole('textbox', { name: 'Exclude namespace selector values' });
+
+      await user.type(keyInput, 'env');
+      await user.type(valueInput, 'openshift-console');
+
+      await waitFor(() => {
+        expect(screen.getByText(protectedNamespaceSelectorValidationMessage)).toBeInTheDocument();
+      });
     });
 
     it('does not render the exclude-namespace selectors block when the feature gate is off', () => {

@@ -56,13 +56,24 @@ const FormKeyValueList = ({
     useFormState();
 
   const fieldRows = (values as FormikValues)[arrayFieldName] as KeyValueRow[];
+  const rows = Array.isArray(fieldRows) ? fieldRows : [];
 
   const hasInvalidKeys = (fieldsArray: KeyValueRow[]) =>
     !fieldsArray || fieldsArray.some((field) => !field.key);
 
   useEffect(() => {
-    if (!fieldRows?.length) {
-      setFieldValue(arrayFieldName, [{ id: getRandomID() }]);
+    if (!Array.isArray(fieldRows)) {
+      validateForm();
+      return;
+    }
+    if (fieldRows.length === 0) {
+      setFieldValue(arrayFieldName, [{ id: getRandomID() }], false);
+    } else if (fieldRows.some((row) => !row?.id)) {
+      setFieldValue(
+        arrayFieldName,
+        fieldRows.map((row) => (row?.id ? row : { ...row, id: getRandomID() })),
+        false,
+      );
     }
     validateForm();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -77,15 +88,15 @@ const FormKeyValueList = ({
         {valueColumnLabel}
       </GridItem>
       <GridItem span={4} />
-      {(fieldRows as KeyValueRow[])?.map((label, index) => {
-        const isRemoveDisabled = index === 0 && fieldRows.length === 1;
+      {rows.map((label, index) => {
+        const isRemoveDisabled = index === 0 && rows.length === 1;
         const fieldNameLabelKey = `${arrayFieldName}[${index}].key`;
         const fieldNameLabelValue = `${arrayFieldName}[${index}].value`;
+        const rowKey = label.id ?? `${arrayFieldName}-row-${index}`;
 
         return (
-          /* Adding index to fix issue when machine pool entries with same subnets are removed */
-          // eslint-disable-next-line react/no-array-index-key
-          <React.Fragment key={`${label.id}`}>
+          /* Prefer stable row id; index fallback only until useEffect backfills ids (avoids duplicate "undefined" keys). */
+          <React.Fragment key={rowKey}>
             <GridItem span={4}>
               <Field
                 name={fieldNameLabelKey}
@@ -93,7 +104,7 @@ const FormKeyValueList = ({
                 component={FormKeyLabelKey}
                 index={index}
                 validate={(value: string) => {
-                  const newRows = [...fieldRows];
+                  const newRows = [...rows];
                   newRows[index] = { ...newRows[index], key: value };
                   return validateKey(
                     value,
@@ -120,7 +131,7 @@ const FormKeyValueList = ({
                 index={index}
                 valueAriaLabel={valueInputAriaLabel}
                 validate={(value: string) => {
-                  const newRows = [...fieldRows];
+                  const newRows = [...rows];
                   newRows[index] = { ...newRows[index], value };
                   return validateValue(
                     value,
@@ -163,7 +174,7 @@ const FormKeyValueList = ({
           variant="link"
           isInline
           className="formKeyValueList-addBtn"
-          disableReason={hasInvalidKeys(fieldRows) && addButtonDisabledTooltip}
+          disableReason={hasInvalidKeys(rows) && addButtonDisabledTooltip}
         >
           {addButtonLabel}
         </ButtonWithTooltip>

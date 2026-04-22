@@ -18,12 +18,12 @@ describe('ExcludeNamespaceSelectorsPopover', () => {
 
   describe('<ExcludeNamespaceSelectorsPopover />', () => {
     it('is accessible when the popover is open', async () => {
-      const { container, user } = render(<ExcludeNamespaceSelectorsPopover />);
+      const { baseElement, user } = render(<ExcludeNamespaceSelectorsPopover />);
 
       await user.click(screen.getByRole('button', { name: 'More information' }));
       expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
-      await checkAccessibility(container);
+      await checkAccessibility(baseElement);
     });
 
     it('opens a popover with the expected title and guidance', async () => {
