@@ -13,10 +13,7 @@ import {
   ExcludedNamespacesHelpText,
   ExcludedNamespacesPopover,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludedNamespacesPopover';
-import {
-  ExcludeNamespaceSelectorsHelpText,
-  ExcludeNamespaceSelectorsPopover,
-} from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludeNamespaceSelectorsPopover';
+import { ExcludeNamespaceSelectorsPopover } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludeNamespaceSelectorsPopover';
 import { NamespaceOwnerPolicyPopover } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/NamespaceOwnerPolicyPopover';
 import {
   RouteSelectorsHelpText,
@@ -91,9 +88,6 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
             label="Exclude namespace selectors"
             labelHelp={<ExcludeNamespaceSelectorsPopover />}
           >
-            <p className="pf-v6-c-form__helper-text pf-v6-u-mb-md">
-              {ExcludeNamespaceSelectorsHelpText}
-            </p>
             <FieldArray
               name={FieldId.DefaultRouterExcludeNamespaceSelectors}
               validateOnChange={false}

@@ -4,6 +4,7 @@ import { Alert, Content, Form, FormGroup, Grid, GridItem, Title } from '@pattern
 
 import { ocmResourceType, TrackEvent, trackEvents } from '~/common/analytics';
 import docLinks from '~/common/docLinks.mjs';
+import { getRandomID } from '~/common/helpers';
 import { getDefaultSecurityGroupsSettings } from '~/common/securityGroupsHelpers';
 import { normalizedProducts } from '~/common/subscriptionTypes';
 import supportLinks from '~/common/supportLinks.mjs';
@@ -172,6 +173,14 @@ export const Configuration = () => {
 
   const onApplicationIngressChange = (value: string) => {
     setFieldValue(FieldId.ApplicationIngress, value);
+    if (value === ApplicationIngressType.Custom) {
+      const rows = values[FieldId.DefaultRouterExcludeNamespaceSelectors];
+      if (!Array.isArray(rows) || rows.length === 0) {
+        setFieldValue(FieldId.DefaultRouterExcludeNamespaceSelectors, [
+          { id: getRandomID(), key: '', value: '' },
+        ]);
+      }
+    }
   };
 
   const clusterPrivacyOptions: RadioGroupOption[] = [

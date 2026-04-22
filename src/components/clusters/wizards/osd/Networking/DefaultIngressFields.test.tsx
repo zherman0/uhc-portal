@@ -1,10 +1,9 @@
 import React from 'react';
 import { Formik, FormikValues } from 'formik';
 
-import { ExcludeNamespaceSelectorsHelpText } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludeNamespaceSelectorsPopover';
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
 import { EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
-import { mockUseFeatureGate, render, screen, waitFor } from '~/testUtils';
+import { mockUseFeatureGate, render, screen, waitFor, within } from '~/testUtils';
 
 import { FieldId, initialValues } from '../constants';
 
@@ -27,7 +26,7 @@ describe('DefaultIngressFields', () => {
   });
 
   describe('Exclude namespace selectors (GCP + feature gate)', () => {
-    it('renders the field group, helper copy, and key/value UI when the gate is on and provider is GCP', async () => {
+    it('renders the field group, label help popover, and key/value UI when the gate is on and provider is GCP', async () => {
       const useFeatureGateSpy = mockUseFeatureGate([[EXCLUDE_NAMESPACE_SELECTORS, true]]);
       renderWithFormik({ [FieldId.CloudProvider]: CloudProviderType.Gcp });
 
@@ -38,12 +37,14 @@ describe('DefaultIngressFields', () => {
           screen.getByRole('textbox', { name: 'Exclude namespace selector values' }),
         ).toBeInTheDocument();
       });
+      const label = screen.getByText('Exclude namespace selectors', {
+        selector: 'label .pf-v6-c-form__label-text',
+      });
+      const formGroup = label.closest('.pf-v6-c-form__group');
+      expect(formGroup).toBeTruthy();
       expect(
-        screen.getByText('Exclude namespace selectors', {
-          selector: 'label .pf-v6-c-form__label-text',
-        }),
+        within(formGroup as HTMLElement).getByRole('button', { name: 'More information' }),
       ).toBeInTheDocument();
-      expect(screen.getByText(ExcludeNamespaceSelectorsHelpText)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Add selector' })).toBeInTheDocument();
       expect(screen.getByText('Values (comma-separated)')).toBeInTheDocument();
     });
@@ -75,7 +76,6 @@ describe('DefaultIngressFields', () => {
       expect(
         screen.queryByRole('textbox', { name: 'Exclude namespace selector values' }),
       ).not.toBeInTheDocument();
-      expect(screen.queryByText(ExcludeNamespaceSelectorsHelpText)).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Add selector' })).not.toBeInTheDocument();
     });
 
@@ -86,7 +86,6 @@ describe('DefaultIngressFields', () => {
       expect(
         screen.queryByRole('textbox', { name: 'Exclude namespace selector values' }),
       ).not.toBeInTheDocument();
-      expect(screen.queryByText(ExcludeNamespaceSelectorsHelpText)).not.toBeInTheDocument();
     });
   });
 });

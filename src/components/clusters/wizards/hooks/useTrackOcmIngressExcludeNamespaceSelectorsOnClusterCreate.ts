@@ -21,18 +21,21 @@ export function useTrackOcmIngressExcludeNamespaceSelectorsOnClusterCreate(
   const createClusterResponse = useGlobalState((state) => state.clusters.createdCluster);
   const trackedRef = useRef(false);
 
+  const hasConfigured = hasConfiguredExcludeNamespaceSelectors(
+    values[FieldId.DefaultRouterExcludeNamespaceSelectors],
+  );
+
   useEffect(() => {
     if (!createClusterResponse.fulfilled || trackedRef.current) {
       return;
     }
-    trackedRef.current = true;
-    if (
-      hasConfiguredExcludeNamespaceSelectors(values[FieldId.DefaultRouterExcludeNamespaceSelectors])
-    ) {
-      track(trackEvents.OcmIngressExcludeNamespaceSelectorsSet, {
-        resourceType: (ocmResourceTypeByProduct as Record<string, string>)[product],
-        customProperties: { cluster_creation: true },
-      });
+    if (!hasConfigured) {
+      return;
     }
-  }, [createClusterResponse.fulfilled, values, track, product]);
+    track(trackEvents.OcmIngressExcludeNamespaceSelectorsSet, {
+      resourceType: (ocmResourceTypeByProduct as Record<string, string>)[product],
+      customProperties: { cluster_creation: true },
+    });
+    trackedRef.current = true;
+  }, [createClusterResponse.fulfilled, hasConfigured, track, product]);
 }

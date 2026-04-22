@@ -18,9 +18,7 @@ export function parseFormExcludeNamespaceSelectorsToApi(
   const items = rows
     .filter((row) => row.key?.trim())
     .map((row) => {
-      const values = stringToArrayTrimmed(row.value || '').filter(
-        (entry): entry is string => entry != null && entry !== '',
-      );
+      const values = stringToArrayTrimmed(row.value || '');
       return { key: row.key!.trim(), values };
     })
     .filter((item) => item.values.length > 0);

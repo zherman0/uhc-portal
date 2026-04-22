@@ -45,10 +45,10 @@ const asArray = <T>(itemOrList: T | T[]): T[] => {
 };
 
 const stringToArray = (str?: string) => str && str.trim().split(',');
-const stringToArrayTrimmed = (str: string) =>
+const stringToArrayTrimmed = (str: string): string[] =>
   asArray(stringToArray(str))
     .map((ns) => ns?.trim())
-    .filter((ns) => !!ns);
+    .filter((ns): ns is string => !!ns);
 
 const arrayToString = (arr?: string[]) => arr && arr.join(',');
 
