@@ -27,6 +27,7 @@ import config from '~/config';
 import useCanClusterAutoscale from '~/hooks/useCanClusterAutoscale';
 import {
   ALLOW_EUS_CHANNEL,
+  EXCLUDE_NAMESPACE_SELECTORS,
   GCP_DNS_ZONE,
   Y_STREAM_CHANNEL,
 } from '~/queries/featureGates/featureConstants';
@@ -67,6 +68,7 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
   const isEUSChannelEnabled = useFeatureGate(ALLOW_EUS_CHANNEL);
   const isYStreamChannelEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   const isGcpDnsZoneEnabled = useFeatureGate(GCP_DNS_ZONE);
+  const isExcludeNamespaceSelectorsEnabled = useFeatureGate(EXCLUDE_NAMESPACE_SELECTORS);
 
   const isByoc = byoc === 'true';
   const isAWS = cloudProvider === CloudProviderType.Aws;
@@ -208,10 +210,12 @@ export const ReviewAndCreateContent = ({ isPending }: ReviewAndCreateContentProp
               name={FieldId.DefaultRouterExcludedNamespacesFlag}
               formValues={formValues}
             />
-            <ReviewItem
-              name={FieldId.DefaultRouterExcludeNamespaceSelectors}
-              formValues={formValues}
-            />
+            {isGCP && isExcludeNamespaceSelectorsEnabled && (
+              <ReviewItem
+                name={FieldId.DefaultRouterExcludeNamespaceSelectors}
+                formValues={formValues}
+              />
+            )}
             <ReviewItem
               name={FieldId.IsDefaultRouterWildcardPolicyAllowed}
               formValues={formValues}
