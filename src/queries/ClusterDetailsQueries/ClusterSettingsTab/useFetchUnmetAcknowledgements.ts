@@ -68,11 +68,11 @@ export const useFetchUnmetAcknowledgements = (
       aggregateUpgradeValidationErrors,
       errorDetails,
       formattedError.error?.reason ?? '',
-    ) as ErrorState['errorDetails'];
+    );
 
     const errorForUi: ErrorState | null = formattedError.error
       ? ({
-          ...(formattedError.error as ErrorState),
+          ...formattedError.error,
           errorDetails: normalizedErrorDetails,
         } as ErrorState)
       : null;
