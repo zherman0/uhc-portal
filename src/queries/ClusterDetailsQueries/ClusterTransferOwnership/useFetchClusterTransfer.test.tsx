@@ -81,7 +81,7 @@ describe('useFetchClusterTransfer', () => {
     };
     getClusterTransferByExternalIDSpy.mockResolvedValueOnce({
       data: listPayload,
-    } as never);
+    });
 
     const { result } = renderHook(() => useFetchClusterTransfer({ clusterExternalID: 'ext-1' }));
 
@@ -98,7 +98,7 @@ describe('useFetchClusterTransfer', () => {
 
   it('searches by transfer ID with pagination options from view state', async () => {
     const searchResponse = { data: { items: [], total: 0 } };
-    searchClusterTransfersSpy.mockResolvedValueOnce(searchResponse as never);
+    searchClusterTransfersSpy.mockResolvedValueOnce(searchResponse);
 
     const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 'tr-99' }));
 
@@ -127,7 +127,7 @@ describe('useFetchClusterTransfer', () => {
         },
       }),
     );
-    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } });
 
     const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 't-sort' }));
 
@@ -154,7 +154,7 @@ describe('useFetchClusterTransfer', () => {
         },
       }),
     );
-    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } });
 
     const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 't-asc' }));
 
@@ -178,7 +178,7 @@ describe('useFetchClusterTransfer', () => {
         },
       }),
     );
-    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } });
 
     const { result } = renderHook(() => useFetchClusterTransfer({ filter: `id='x'` }));
 
@@ -191,7 +191,7 @@ describe('useFetchClusterTransfer', () => {
   });
 
   it('uses custom filter when provided', async () => {
-    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } } as never);
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [], total: 0 } });
 
     const { result } = renderHook(() => useFetchClusterTransfer({ filter: `owner='org-1'` }));
 
@@ -210,7 +210,7 @@ describe('useFetchClusterTransfer', () => {
   it('dispatches total count for list/search mode when total is present', async () => {
     searchClusterTransfersSpy.mockResolvedValueOnce({
       data: { items: [], total: 42 },
-    } as never);
+    });
 
     const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 't1' }));
 
@@ -244,7 +244,7 @@ describe('useFetchClusterTransfer', () => {
         items: [pendingItem, { id: 'other', cluster_uuid: 'ext-p', status: 'completed' }],
         total: 2,
       },
-    } as never);
+    });
 
     const { result } = renderHook(() =>
       useFetchClusterTransfer({
@@ -268,7 +268,7 @@ describe('useFetchClusterTransfer', () => {
     };
     getClusterTransferByExternalIDSpy.mockResolvedValueOnce({
       data: { items: [acceptedItem], total: 1 },
-    } as never);
+    });
 
     const { result } = renderHook(() =>
       useFetchClusterTransfer({
@@ -288,7 +288,7 @@ describe('useFetchClusterTransfer', () => {
         items: [{ id: 'done', cluster_uuid: 'ext-z', status: 'completed' }],
         total: 1,
       },
-    } as never);
+    });
 
     const { result } = renderHook(() =>
       useFetchClusterTransfer({
@@ -303,7 +303,7 @@ describe('useFetchClusterTransfer', () => {
   });
 
   it('does not dispatch total when search response has no total field', async () => {
-    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [] } } as never);
+    searchClusterTransfersSpy.mockResolvedValueOnce({ data: { items: [] } });
 
     const { result } = renderHook(() => useFetchClusterTransfer({ transferID: 'no-total' }));
 
