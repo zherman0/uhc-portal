@@ -25,6 +25,7 @@ export const mockLogForwardingGroupTree: LogForwardingGroupTreeNode[] = [
   {
     id: 'controller-manager',
     text: 'Controller manager',
+    children: [{ id: 'controller-manager-child', text: 'controller manager' }],
   },
   {
     id: 'ungrouped-applications',
