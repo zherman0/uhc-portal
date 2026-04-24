@@ -10,6 +10,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 
+import { nodeKeyValueTooltipText } from '~/common/helpers';
 import {
   getWorkerNodeVolumeSizeMaxGiB,
   getWorkerNodeVolumeSizeMinGiB,
@@ -112,6 +113,7 @@ function ScaleSection() {
             component={FormKeyValueList}
             name={FieldId.NodeLabels}
             validateOnChange={false}
+            addButtonDisabledTooltip={nodeKeyValueTooltipText}
           />
         </ExpandableSection>
       ) : null,

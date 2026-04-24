@@ -6,10 +6,14 @@ import { FormGroupHelperText } from '../../FormGroupHelperText';
 
 import LabelKeyValueProps from './LabelKeyValueProps';
 
-const FormKeyLabelKey = ({ input, meta: { touched, error } }: LabelKeyValueProps) => (
+const FormKeyLabelKey = ({
+  input,
+  meta: { touched, error },
+  keyInputAriaLabel = 'Key-value list key',
+}: LabelKeyValueProps) => (
   <>
     <TextInput
-      aria-label="Key-value list key"
+      aria-label={keyInputAriaLabel}
       validated={touched && error ? 'error' : 'default'}
       onChange={(_, value) => input.onChange(value)}
       value={input.value}

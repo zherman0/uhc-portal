@@ -98,6 +98,7 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
                   arrayFieldName={FieldId.DefaultRouterExcludeNamespaceSelectors}
                   valueColumnLabel="Values (comma-separated)"
                   addButtonLabel="Add selector"
+                  keyInputAriaLabel="Exclude namespace selector key"
                   valueInputAriaLabel="Exclude namespace selector values"
                   validateKey={validateExcludeNamespaceSelectorKey}
                   validateValue={validateExcludeNamespaceSelectorValue}

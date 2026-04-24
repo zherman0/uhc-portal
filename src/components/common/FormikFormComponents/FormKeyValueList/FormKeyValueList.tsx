@@ -5,7 +5,7 @@ import { Button, Grid, GridItem } from '@patternfly/react-core';
 import { MinusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/minus-circle-icon';
 import { PlusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/plus-circle-icon';
 
-import { getRandomID, nodeKeyValueTooltipText } from '~/common/helpers';
+import { getRandomID } from '~/common/helpers';
 import { validateLabelKey, validateLabelValue } from '~/common/validators';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { useFormState } from '~/components/clusters/wizards/hooks';
@@ -17,6 +17,9 @@ import FormKeyLabelValue from './FormKeyLabelValue';
 
 import './FormKeyValueList.scss';
 
+const DEFAULT_ADD_BUTTON_DISABLED_TOOLTIP = 'Enter a key before adding another row.';
+const DEFAULT_KEY_INPUT_ARIA_LABEL = 'Key-value list key';
+
 type KeyValueRow = { id?: string; key?: string; value?: string };
 
 export interface FormKeyValueListProps extends ArrayHelpers {
@@ -24,6 +27,7 @@ export interface FormKeyValueListProps extends ArrayHelpers {
   keyColumnLabel?: string;
   valueColumnLabel?: string;
   addButtonLabel?: string;
+  keyInputAriaLabel?: string;
   valueInputAriaLabel?: string;
   validateKey?: (
     key: string,
@@ -47,10 +51,11 @@ const FormKeyValueList = ({
   keyColumnLabel = 'Key',
   valueColumnLabel = 'Value',
   addButtonLabel = 'Add additional label',
+  keyInputAriaLabel = DEFAULT_KEY_INPUT_ARIA_LABEL,
   valueInputAriaLabel,
   validateKey = validateLabelKey,
   validateValue = validateLabelValue,
-  addButtonDisabledTooltip = nodeKeyValueTooltipText,
+  addButtonDisabledTooltip = DEFAULT_ADD_BUTTON_DISABLED_TOOLTIP,
 }: FormKeyValueListProps) => {
   const { values, setFieldValue, setFieldTouched, getFieldProps, getFieldMeta, validateForm } =
     useFormState();
@@ -103,6 +108,7 @@ const FormKeyValueList = ({
                 type="text"
                 component={FormKeyLabelKey}
                 index={index}
+                keyInputAriaLabel={keyInputAriaLabel}
                 validate={(value: string) => {
                   const newRows = [...rows];
                   newRows[index] = { ...newRows[index], key: value };
