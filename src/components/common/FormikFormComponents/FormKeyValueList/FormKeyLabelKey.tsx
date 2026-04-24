@@ -2,6 +2,8 @@ import React from 'react';
 
 import { TextInput } from '@patternfly/react-core';
 
+import { FormGroupHelperText } from '../../FormGroupHelperText';
+
 import LabelKeyValueProps from './LabelKeyValueProps';
 
 const FormKeyLabelKey = ({ input, meta: { touched, error } }: LabelKeyValueProps) => (
@@ -12,7 +14,7 @@ const FormKeyLabelKey = ({ input, meta: { touched, error } }: LabelKeyValueProps
       onChange={(_, value) => input.onChange(value)}
       value={input.value}
     />
-    {touched && error && <span className="pf-v6-c-form__helper-text pf-m-error">{error}</span>}
+    <FormGroupHelperText touched={touched} error={touched ? error : undefined} />
   </>
 );
 
