@@ -59,7 +59,7 @@ describe('DefaultIngressFields', () => {
         ).toBeInTheDocument();
       });
 
-      const keyInput = screen.getByRole('textbox', { name: 'Key-value list key' });
+      const keyInput = screen.getByRole('textbox', { name: 'Exclude namespace selector key' });
       const valueInput = screen.getByRole('textbox', { name: 'Exclude namespace selector values' });
 
       await user.type(keyInput, 'env');
