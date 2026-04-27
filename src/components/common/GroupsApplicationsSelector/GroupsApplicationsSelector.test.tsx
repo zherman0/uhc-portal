@@ -215,26 +215,6 @@ describe('<GroupsApplicationsSelector />', () => {
     expect(onSubmit).toHaveBeenCalledWith({ [FIELD_NAME]: [] }, expect.anything());
   });
 
-  it('shows no-results empty state when filter matches nothing and clears via link', async () => {
-    const { user } = render(
-      <TestShell>
-        <GroupsApplicationsSelector name={FIELD_NAME} treeData={minimalTree} />
-      </TestShell>,
-    );
-
-    const search = screen.getByRole('textbox', { name: 'Filter groups and applications' });
-    await user.type(search, 'zzzz-no-match');
-
-    expect(screen.getByText('No results found')).toBeInTheDocument();
-    expect(
-      screen.getByText('No results match the filter criteria. Clear all filters and try again.'),
-    ).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Clear all filters' }));
-    expect(screen.queryByText('No results found')).not.toBeInTheDocument();
-    expect(screen.getByRole('checkbox', { name: 'Select Group A' })).toBeInTheDocument();
-  });
-
   it('respects initial Formik values', async () => {
     const { user } = render(
       <TestShell initialValues={{ [FIELD_NAME]: ['leaf-1'] }}>
@@ -250,14 +230,13 @@ describe('<GroupsApplicationsSelector />', () => {
     expect(screen.getByRole('checkbox', { name: 'Select App One' })).toBeChecked();
   });
 
-  it('disables search, tree checkboxes, and label removal when isDisabled', async () => {
+  it('disables tree checkboxes and label removal when isDisabled', async () => {
     const { user } = render(
       <TestShell initialValues={{ [FIELD_NAME]: ['leaf-1'] }}>
         <GroupsApplicationsSelector name={FIELD_NAME} treeData={minimalTree} isDisabled />
       </TestShell>,
     );
 
-    expect(screen.getByRole('textbox', { name: 'Filter groups and applications' })).toBeDisabled();
     expect(screen.getByRole('checkbox', { name: 'Select Group A' })).toBeDisabled();
 
     await user.click(screen.getByRole('checkbox', { name: 'Select Group A' }));

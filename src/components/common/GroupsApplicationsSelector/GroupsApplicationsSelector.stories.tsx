@@ -16,7 +16,8 @@ import {
 /**
  * Stories use mock `treeData` only. The shared `GroupsApplicationsSelector` does not import the
  * API layer (avoids `APP_DEV_SERVER` and other app config in Storybook). The ROSA wizard uses
- * `LogForwardingGroupsApplicationsSelector` for live data.
+ * `LogForwardingGroupsApplicationsSelector` for live data. The tree list has no search field—the
+ * full tree is always shown.
  */
 const MOCK_TREE_DATA = mockLogForwardingGroupTree;
 

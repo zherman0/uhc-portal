@@ -1,31 +1,25 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useField } from 'formik';
 
 import {
-  Button,
   EmptyState,
-  EmptyStateActions,
   EmptyStateBody,
-  EmptyStateFooter,
   EmptyStateVariant,
   Flex,
   FlexItem,
   FormGroup,
   Label,
   LabelGroup,
-  SearchInput,
   Stack,
   StackItem,
   TreeView,
   TreeViewDataItem,
 } from '@patternfly/react-core';
-import SearchIcon from '@patternfly/react-icons/dist/esm/icons/search-icon';
 
 import PopoverHint from '~/components/common/PopoverHint';
 
 import type { LogForwardingGroupTreeNode } from './logForwardingGroupTreeData';
 import {
-  buildLogForwardingGroupTreeTextById,
   getLogForwardingGroupTreeLeavesById,
   groupSelectedLeavesByRoot,
 } from './logForwardingReviewHelpers';
@@ -43,9 +37,6 @@ export type GroupsApplicationsSelectorProps = {
   chosenTooltip?: React.ReactNode;
   listMinHeight?: string;
 };
-
-const matchesFilter = (value: string, filter: string) =>
-  value.toLowerCase().includes(filter.trim().toLowerCase());
 
 const paneHeading = (label: React.ReactNode, isRequired?: boolean, tooltip?: React.ReactNode) => (
   <Flex
@@ -83,45 +74,22 @@ export function GroupsApplicationsSelector({
   const [field, , helpers] = useField<string[]>(name);
   const chosenLeafIds = useMemo(() => field.value ?? [], [field.value]);
 
-  const [treeFilter, setTreeFilter] = useState('');
-
-  const { memoizedLeavesById, memoizedNodeTexts } = useMemo(() => {
+  const memoizedLeavesById = useMemo(() => {
     let leavesById: Record<string, string[]> = {};
-    let nodeTexts: Record<string, string> = {};
     treeData.forEach((root) => {
-      nodeTexts = { ...nodeTexts, ...buildLogForwardingGroupTreeTextById(root) };
       leavesById = { ...leavesById, ...getLogForwardingGroupTreeLeavesById(root) };
     });
-    return {
-      memoizedLeavesById: leavesById,
-      memoizedNodeTexts: nodeTexts,
-    };
+    return leavesById;
   }, [treeData]);
 
   const chosenSet = useMemo(() => new Set(chosenLeafIds), [chosenLeafIds]);
 
   const treeViewData = useMemo(() => {
-    const mapGroupTreeToTreeViewData = (
-      nodes: LogForwardingGroupTreeNode[],
-      filter: string,
-      hasParentMatch: boolean,
-    ): TreeViewDataItem[] =>
+    const mapGroupTreeToTreeViewData = (nodes: LogForwardingGroupTreeNode[]): TreeViewDataItem[] =>
       nodes.flatMap((node) => {
         const descendentLeafIds = memoizedLeavesById[node.id];
         if (!descendentLeafIds?.length) {
           return [];
-        }
-        const filterValue = filter.trim();
-        const hasMatchingChildren =
-          filterValue &&
-          descendentLeafIds.some((id) => matchesFilter(memoizedNodeTexts[id], filterValue));
-        const isFilterMatch = filterValue && matchesFilter(node.text, filterValue);
-        const isDisplayed = !filterValue || hasMatchingChildren || isFilterMatch || hasParentMatch;
-
-        if (!isDisplayed) {
-          return node.children?.length
-            ? mapGroupTreeToTreeViewData(node.children, filter, hasParentMatch)
-            : [];
         }
 
         const selectedCount = descendentLeafIds.filter((id) => chosenSet.has(id)).length;
@@ -146,16 +114,13 @@ export function GroupsApplicationsSelector({
             checked,
             disabled: isDisabled,
           },
-          defaultExpanded: !!(filterValue && (hasMatchingChildren || isFilterMatch)),
-          children: node.children
-            ? mapGroupTreeToTreeViewData(node.children, filter, !!(isFilterMatch || hasParentMatch))
-            : undefined,
+          children: node.children ? mapGroupTreeToTreeViewData(node.children) : undefined,
         };
         return [item];
       });
 
-    return mapGroupTreeToTreeViewData(treeData, treeFilter, false);
-  }, [treeData, treeFilter, chosenSet, memoizedLeavesById, memoizedNodeTexts, isDisabled]);
+    return mapGroupTreeToTreeViewData(treeData);
+  }, [treeData, chosenSet, memoizedLeavesById, isDisabled]);
 
   const selectedByGroup = useMemo(
     () => groupSelectedLeavesByRoot(treeData, chosenLeafIds),
@@ -197,42 +162,6 @@ export function GroupsApplicationsSelector({
     helpers.setTouched(true);
   };
 
-  const filterApplied = treeFilter.trim() !== '';
-  const showTreeEmpty = filterApplied && treeViewData.length === 0;
-
-  const leftTreePanel = () => {
-    if (showTreeEmpty) {
-      return (
-        <EmptyState
-          headingLevel="h4"
-          titleText="No results found"
-          icon={SearchIcon}
-          variant={EmptyStateVariant.sm}
-        >
-          <EmptyStateBody>
-            No results match the filter criteria. Clear all filters and try again.
-          </EmptyStateBody>
-          <EmptyStateFooter>
-            <EmptyStateActions>
-              <Button variant="link" onClick={() => setTreeFilter('')}>
-                Clear all filters
-              </Button>
-            </EmptyStateActions>
-          </EmptyStateFooter>
-        </EmptyState>
-      );
-    }
-    return (
-      <TreeView
-        data={treeViewData}
-        hasCheckboxes
-        isMultiSelectable
-        onCheck={onTreeCheck}
-        aria-label={typeof availableTitle === 'string' ? availableTitle : 'Groups and applications'}
-      />
-    );
-  };
-
   return (
     <FormGroup fieldId={name}>
       <Flex
@@ -245,16 +174,17 @@ export function GroupsApplicationsSelector({
           <Stack hasGutter>
             <StackItem>{paneHeading(availableTitle, isRequired, availableTooltip)}</StackItem>
             <StackItem>
-              <SearchInput
-                aria-label="Filter groups and applications"
-                value={treeFilter}
-                onChange={(_event, value) => setTreeFilter(value)}
-                onClear={() => setTreeFilter('')}
-                isDisabled={isDisabled}
-              />
-            </StackItem>
-            <StackItem>
-              <div style={{ minHeight: listMinHeight, overflow: 'auto' }}>{leftTreePanel()}</div>
+              <div style={{ minHeight: listMinHeight, overflow: 'auto' }}>
+                <TreeView
+                  data={treeViewData}
+                  hasCheckboxes
+                  isMultiSelectable
+                  onCheck={onTreeCheck}
+                  aria-label={
+                    typeof availableTitle === 'string' ? availableTitle : 'Groups and applications'
+                  }
+                />
+              </div>
             </StackItem>
           </Stack>
         </FlexItem>
