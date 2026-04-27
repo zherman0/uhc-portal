@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Field, FieldArray } from 'formik';
 
 import { FormGroup, GridItem } from '@patternfly/react-core';
@@ -37,6 +37,13 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
   const { setFieldValue, getFieldMeta, getFieldProps, values } = useFormState();
   const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
   const isGcp = values[FieldId.CloudProvider] === CloudProviderType.Gcp;
+  const showExcludeNamespaceSelectors = isExcludeNamespaceSelectorsEnabled && isGcp;
+
+  useEffect(() => {
+    if (!showExcludeNamespaceSelectors) {
+      setFieldValue(FieldId.DefaultRouterExcludeNamespaceSelectors, [], false);
+    }
+  }, [showExcludeNamespaceSelectors, setFieldValue]);
 
   const routeSelectorFieldMeta = getFieldMeta(FieldId.DefaultRouterSelectors);
   const excludedNamespacesFieldMeta = getFieldMeta(FieldId.DefaultRouterExcludedNamespacesFlag);
@@ -82,7 +89,7 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
         </FormGroup>
       </GridItem>
 
-      {isExcludeNamespaceSelectorsEnabled && isGcp ? (
+      {showExcludeNamespaceSelectors ? (
         <GridItem span={9}>
           <FormGroup
             data-testid="default-ingress-exclude-namespace-selectors"
