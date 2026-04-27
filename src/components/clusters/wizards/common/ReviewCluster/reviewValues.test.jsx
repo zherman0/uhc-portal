@@ -26,6 +26,11 @@ describe('reviewValues', () => {
       expect(screen.getByText('route = external')).toBeInTheDocument();
       expect(screen.getByText('shard = blue')).toBeInTheDocument();
     });
+    it('renders each route selector as a blue label', () => {
+      render(<>{valueTransform('route=external,shard=')}</>);
+      expect(screen.getByText('route = external')).toBeInTheDocument();
+      expect(screen.getByText('shard =')).toBeInTheDocument();
+    });
   });
 
   describe('defaultRouterExcludeNamespaceSelectors', () => {
