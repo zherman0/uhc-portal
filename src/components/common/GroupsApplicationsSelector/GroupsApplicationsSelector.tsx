@@ -193,58 +193,48 @@ export function GroupsApplicationsSelector({
           <Stack hasGutter>
             <StackItem>{paneHeading(chosenTitle, isRequired, chosenTooltip)}</StackItem>
             <StackItem>
-              <div
-                className="pf-v6-u-p-md"
-                style={{
-                  minHeight: listMinHeight,
-                  border: '1px solid var(--pf-v6-global--BorderColor--100)',
-                  borderRadius: 'var(--pf-v6-global--BorderRadius--medium)',
-                  overflow: 'auto',
-                }}
-              >
-                {chosenLeafIds.length === 0 ? (
-                  <EmptyState
-                    headingLevel="h4"
-                    titleText="No groups or applications selected"
-                    variant={EmptyStateVariant.sm}
-                  >
-                    <EmptyStateBody>Select items from the list on the left.</EmptyStateBody>
-                  </EmptyState>
-                ) : (
-                  <Stack hasGutter>
-                    {selectedByGroup.map(({ groupRootId, groupLabel, leaves }) => (
-                      <div key={groupRootId} style={{ minWidth: 0 }}>
-                        <LabelGroup
-                          categoryName={groupLabel}
-                          numLabels={8}
-                          collapsedText={LABEL_GROUP_OVERFLOW_TEXT}
-                          isClosable={!isDisabled}
-                          closeBtnAriaLabel={`Remove all applications in ${groupLabel}`}
-                          onClick={() => removeGroup(groupRootId)}
-                        >
-                          {leaves.map(({ id, text }) => (
-                            <Label
-                              key={id}
-                              variant="filled"
-                              onClose={
-                                isDisabled
-                                  ? undefined
-                                  : (e) => {
-                                      e.stopPropagation();
-                                      removeLeaf(id);
-                                    }
-                              }
-                              closeBtnAriaLabel={`Remove ${text}`}
-                            >
-                              {text}
-                            </Label>
-                          ))}
-                        </LabelGroup>
-                      </div>
-                    ))}
-                  </Stack>
-                )}
-              </div>
+              {chosenLeafIds.length === 0 ? (
+                <EmptyState
+                  headingLevel="h4"
+                  titleText="No groups or applications selected"
+                  variant={EmptyStateVariant.sm}
+                >
+                  <EmptyStateBody>Select items from the list on the left.</EmptyStateBody>
+                </EmptyState>
+              ) : (
+                <Stack hasGutter>
+                  {selectedByGroup.map(({ groupRootId, groupLabel, leaves }) => (
+                    <div key={groupRootId} style={{ minWidth: 0 }}>
+                      <LabelGroup
+                        categoryName={groupLabel}
+                        numLabels={8}
+                        collapsedText={LABEL_GROUP_OVERFLOW_TEXT}
+                        isClosable={!isDisabled}
+                        closeBtnAriaLabel={`Remove all applications in ${groupLabel}`}
+                        onClick={() => removeGroup(groupRootId)}
+                      >
+                        {leaves.map(({ id, text }) => (
+                          <Label
+                            key={id}
+                            variant="filled"
+                            onClose={
+                              isDisabled
+                                ? undefined
+                                : (e) => {
+                                    e.stopPropagation();
+                                    removeLeaf(id);
+                                  }
+                            }
+                            closeBtnAriaLabel={`Remove ${text}`}
+                          >
+                            {text}
+                          </Label>
+                        ))}
+                      </LabelGroup>
+                    </div>
+                  ))}
+                </Stack>
+              )}
             </StackItem>
           </Stack>
         </FlexItem>
