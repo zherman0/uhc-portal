@@ -37,13 +37,11 @@ describe('DefaultIngressFields', () => {
           screen.getByRole('textbox', { name: 'Exclude namespace selector values' }),
         ).toBeInTheDocument();
       });
-      const label = screen.getByText('Exclude namespace selectors', {
-        selector: 'label .pf-v6-c-form__label-text',
-      });
-      const formGroup = label.closest('.pf-v6-c-form__group');
-      expect(formGroup).toBeTruthy();
+      const excludeSelectorsSection = screen.getByTestId(
+        'default-ingress-exclude-namespace-selectors',
+      );
       expect(
-        within(formGroup as HTMLElement).getByRole('button', { name: 'More information' }),
+        within(excludeSelectorsSection).getByRole('button', { name: 'More information' }),
       ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Add selector' })).toBeInTheDocument();
       expect(screen.getByText('Values (comma-separated)')).toBeInTheDocument();
@@ -86,6 +84,7 @@ describe('DefaultIngressFields', () => {
       expect(
         screen.queryByRole('textbox', { name: 'Exclude namespace selector values' }),
       ).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Add selector' })).not.toBeInTheDocument();
     });
   });
 });

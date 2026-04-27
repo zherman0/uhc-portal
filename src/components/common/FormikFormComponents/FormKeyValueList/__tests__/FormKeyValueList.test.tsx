@@ -1,5 +1,5 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Formik, FormikValues } from 'formik';
 
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { checkAccessibility, render, screen } from '~/testUtils';
@@ -9,8 +9,10 @@ import FormKeyValueList from '../FormKeyValueList';
 const push = jest.fn();
 const remove = jest.fn();
 
+type NodeLabelRow = { key: string; value: string };
+
 describe('<FormKeyValueList />', () => {
-  const listWithItemsFields = [
+  const listWithItemsFields: NodeLabelRow[] = [
     { key: 'aa', value: 'bb' },
     { key: 'cc', value: 'dd' },
   ];
@@ -19,9 +21,8 @@ describe('<FormKeyValueList />', () => {
     jest.clearAllMocks();
   });
 
-  /* eslint-disable react/prop-types */
-  const ConnectedKeyValueList = ({ fields = [] }) => (
-    <Formik
+  const ConnectedKeyValueList = ({ fields = [] }: { fields?: NodeLabelRow[] }) => (
+    <Formik<FormikValues>
       initialValues={{
         [FieldId.NodeLabels]: fields,
       }}

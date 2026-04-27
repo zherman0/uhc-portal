@@ -110,10 +110,15 @@ function ScaleSection() {
             Configure labels that will apply to all nodes in this machine pool.
           </p>
           <FieldArray
-            component={FormKeyValueList}
             name={FieldId.NodeLabels}
             validateOnChange={false}
-            addButtonDisabledTooltip={nodeKeyValueTooltipText}
+            render={(arrayHelpers) => (
+              <FormKeyValueList
+                push={arrayHelpers.push}
+                remove={arrayHelpers.remove}
+                addButtonDisabledTooltip={nodeKeyValueTooltipText}
+              />
+            )}
           />
         </ExpandableSection>
       ) : null,

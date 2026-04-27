@@ -85,6 +85,7 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
       {isExcludeNamespaceSelectorsEnabled && isGcp ? (
         <GridItem span={9}>
           <FormGroup
+            data-testid="default-ingress-exclude-namespace-selectors"
             label="Exclude namespace selectors"
             labelHelp={<ExcludeNamespaceSelectorsPopover />}
           >
@@ -94,7 +95,8 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
             >
               {(arrayHelpers) => (
                 <FormKeyValueList
-                  {...arrayHelpers}
+                  push={arrayHelpers.push}
+                  remove={arrayHelpers.remove}
                   arrayFieldName={FieldId.DefaultRouterExcludeNamespaceSelectors}
                   valueColumnLabel="Values (comma-separated)"
                   addButtonLabel="Add selector"

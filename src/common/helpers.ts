@@ -49,7 +49,7 @@ const stringToArrayTrimmed = (str: string): string[] =>
   str
     .split(',')
     .map((token) => token.trim())
-    .filter((token): token is string => token.length > 0);
+    .filter((token) => token.length > 0);
 
 const arrayToString = (arr?: string[]) => arr && arr.join(',');
 

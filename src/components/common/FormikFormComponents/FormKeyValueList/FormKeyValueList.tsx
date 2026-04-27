@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { ArrayHelpers, Field, FormikValues } from 'formik';
+import type { ArrayHelpers } from 'formik';
+import { Field, FormikValues } from 'formik';
 
 import { Button, Grid, GridItem } from '@patternfly/react-core';
 import { MinusCircleIcon } from '@patternfly/react-icons/dist/esm/icons/minus-circle-icon';
@@ -22,7 +23,13 @@ const DEFAULT_KEY_INPUT_ARIA_LABEL = 'Key-value list key';
 
 type KeyValueRow = { id?: string; key?: string; value?: string };
 
-export interface FormKeyValueListProps extends ArrayHelpers {
+/**
+ * Key/value rows for the array at `arrayFieldName` (Formik `FieldArray`).
+ * Pass `push` and `remove` from `FieldArray` render props (or equivalent).
+ * The list auto-normalizes `values[arrayFieldName]`: if it is missing, not an array,
+ * or empty, the component seeds `[{ id }]`; rows missing `id` get one via `setFieldValue`.
+ */
+export interface FormKeyValueListProps extends Pick<ArrayHelpers, 'push' | 'remove'> {
   arrayFieldName?: string;
   keyColumnLabel?: string;
   valueColumnLabel?: string;
@@ -67,11 +74,7 @@ const FormKeyValueList = ({
     !fieldsArray || fieldsArray.some((field) => !field.key);
 
   useEffect(() => {
-    if (!Array.isArray(fieldRows)) {
-      validateForm();
-      return;
-    }
-    if (fieldRows.length === 0) {
+    if (!Array.isArray(fieldRows) || fieldRows.length === 0) {
       setFieldValue(arrayFieldName, [{ id: getRandomID() }], false);
     } else if (fieldRows.some((row) => !row?.id)) {
       setFieldValue(

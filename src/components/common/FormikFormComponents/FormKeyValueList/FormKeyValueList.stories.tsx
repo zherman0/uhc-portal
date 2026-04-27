@@ -1,5 +1,4 @@
 import React from 'react';
-import type { ArrayHelpers } from 'formik';
 import { FieldArray, Formik } from 'formik';
 
 import type { Meta, StoryObj } from '@storybook/react';
@@ -10,7 +9,7 @@ import FormKeyValueList, { type FormKeyValueListProps } from './FormKeyValueList
 
 type Row = { id?: string; key?: string; value?: string };
 
-type FormKeyValueListStoryProps = Omit<FormKeyValueListProps, keyof ArrayHelpers> & {
+type FormKeyValueListStoryProps = Omit<FormKeyValueListProps, 'push' | 'remove'> & {
   initialRows?: Row[];
 };
 
@@ -27,7 +26,12 @@ const FormKeyValueListStory = ({
   >
     <FieldArray name={arrayFieldName}>
       {(arrayHelpers) => (
-        <FormKeyValueList {...arrayHelpers} {...listProps} arrayFieldName={arrayFieldName} />
+        <FormKeyValueList
+          push={arrayHelpers.push}
+          remove={arrayHelpers.remove}
+          {...listProps}
+          arrayFieldName={arrayFieldName}
+        />
       )}
     </FieldArray>
   </Formik>
