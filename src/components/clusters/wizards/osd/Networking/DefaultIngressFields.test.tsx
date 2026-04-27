@@ -2,7 +2,7 @@ import React from 'react';
 import { Formik, FormikValues } from 'formik';
 
 import { CloudProviderType } from '~/components/clusters/wizards/common/constants';
-import { EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
 import { mockUseFeatureGate, render, screen, waitFor, within } from '~/testUtils';
 
 import { FieldId, initialValues } from '../constants';
@@ -27,10 +27,10 @@ describe('DefaultIngressFields', () => {
 
   describe('Exclude namespace selectors (GCP + feature gate)', () => {
     it('renders the field group, label help popover, and key/value UI when the gate is on and provider is GCP', async () => {
-      const useFeatureGateSpy = mockUseFeatureGate([[EXCLUDE_NAMESPACE_SELECTORS, true]]);
+      const useFeatureGateSpy = mockUseFeatureGate([[GCP_EXCLUDE_NAMESPACE_SELECTORS, true]]);
       renderWithFormik({ [FieldId.CloudProvider]: CloudProviderType.Gcp });
 
-      expect(useFeatureGateSpy).toHaveBeenCalledWith(EXCLUDE_NAMESPACE_SELECTORS);
+      expect(useFeatureGateSpy).toHaveBeenCalledWith(GCP_EXCLUDE_NAMESPACE_SELECTORS);
 
       await waitFor(() => {
         expect(
@@ -50,7 +50,7 @@ describe('DefaultIngressFields', () => {
     });
 
     it('shows protected-namespace validation after entering openshift-console as a selector value', async () => {
-      mockUseFeatureGate([[EXCLUDE_NAMESPACE_SELECTORS, true]]);
+      mockUseFeatureGate([[GCP_EXCLUDE_NAMESPACE_SELECTORS, true]]);
       const { user } = renderWithFormik({ [FieldId.CloudProvider]: CloudProviderType.Gcp });
 
       await waitFor(() => {
@@ -80,7 +80,7 @@ describe('DefaultIngressFields', () => {
     });
 
     it('does not render the block when the gate is on but the cloud provider is not GCP', () => {
-      mockUseFeatureGate([[EXCLUDE_NAMESPACE_SELECTORS, true]]);
+      mockUseFeatureGate([[GCP_EXCLUDE_NAMESPACE_SELECTORS, true]]);
       renderWithFormik({ [FieldId.CloudProvider]: CloudProviderType.Aws });
 
       expect(

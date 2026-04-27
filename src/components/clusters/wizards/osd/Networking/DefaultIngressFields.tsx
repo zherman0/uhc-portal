@@ -24,7 +24,7 @@ import { CloudProviderType } from '~/components/clusters/wizards/common/constant
 import { FormGroupHelperText } from '~/components/common/FormGroupHelperText';
 import FormKeyValueList from '~/components/common/FormikFormComponents/FormKeyValueList';
 import { ReduxCheckbox } from '~/components/common/ReduxFormComponents_deprecated';
-import { EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
+import { GCP_EXCLUDE_NAMESPACE_SELECTORS } from '~/queries/featureGates/featureConstants';
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 
 import { useFormState } from '../../hooks';
@@ -35,7 +35,7 @@ type DefaultIngressFieldsProps = {};
 /* So far used in Day 1 flow only (contrary to the version 1 CreateOSDWizard */
 export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
   const { setFieldValue, getFieldMeta, getFieldProps, values } = useFormState();
-  const isExcludeNamespaceSelectorsEnabled = useFeatureGate(EXCLUDE_NAMESPACE_SELECTORS);
+  const isExcludeNamespaceSelectorsEnabled = useFeatureGate(GCP_EXCLUDE_NAMESPACE_SELECTORS);
   const isGcp = values[FieldId.CloudProvider] === CloudProviderType.Gcp;
 
   const routeSelectorFieldMeta = getFieldMeta(FieldId.DefaultRouterSelectors);
