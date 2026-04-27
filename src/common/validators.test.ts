@@ -99,14 +99,16 @@ describe('validators', () => {
     });
 
     it('returns an error when the key is not a valid Kubernetes label key', () => {
-      const message = validateExcludeNamespaceSelectorKey(
-        'Invalid_Label_Key!',
-        { [field]: [{ key: 'Invalid_Label_Key!', value: 'v' }] },
-        undefined,
-        keyName(0),
+      expect(
+        validateExcludeNamespaceSelectorKey(
+          'Invalid_Label_Key!',
+          { [field]: [{ key: 'Invalid_Label_Key!', value: 'v' }] },
+          undefined,
+          keyName(0),
+        ),
+      ).toBe(
+        "A valid key name must consist of alphanumeric characters, '-', '.' , '_'  or '/' and must start and end with an alphanumeric character",
       );
-      expect(message).toBeDefined();
-      expect(message).not.toBe('');
     });
 
     it('returns undefined for a valid unique key', () => {
