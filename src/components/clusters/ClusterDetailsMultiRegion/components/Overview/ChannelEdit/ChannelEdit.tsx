@@ -96,7 +96,7 @@ const ChannelEditModal = ({
             {isError && (
               <StackItem>
                 <ErrorBox
-                  message={error?.error?.errorMessage ? error.error.errorMessage : ''}
+                  message={error?.error?.errorMessage ?? error?.error?.message ?? ''}
                   response={{
                     operationID: error?.error?.operationID,
                   }}

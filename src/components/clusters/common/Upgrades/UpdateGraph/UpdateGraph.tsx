@@ -2,6 +2,8 @@ import React from 'react';
 
 import { InfoCircleIcon } from '@patternfly/react-icons/dist/esm/icons/info-circle-icon';
 
+import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
+import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { VersionGate } from '~/types/clusters_mgmt.v1';
 import { AugmentedCluster, UpgradePolicyWithState } from '~/types/types';
 
@@ -51,7 +53,7 @@ const UpdateGraph = ({
   isSTSEnabled,
   unmetAcknowledgements,
 }: UpdateGraphProps) => {
-  const isYStreamEnabled = true; // useFeatureGate(Y_STREAM_ENABLED);
+  const isYStreamEnabled = useFeatureGate(Y_STREAM_CHANNEL);
   return (
     <div className="ocm-upgrade-graph">
       <GraphContainer>
@@ -80,7 +82,7 @@ const UpdateGraph = ({
       {isYStreamEnabled && (
         <div className="ocm-upgrade-additional-versions-available">
           <InfoCircleIcon />
-          Additional versions may be availble in other channels
+          Additional versions may be available in other channels
         </div>
       )}
       <UpgradeAcknowledgeWarning
