@@ -13,16 +13,7 @@ import { Y_STREAM_CHANNEL } from '~/queries/featureGates/featureConstants';
 import { checkAccessibility, mockUseFeatureGate, render, screen, within } from '~/testUtils';
 import { AugmentedCluster } from '~/types/types';
 
-import { useGetChannelsData } from '../Overview/ChannelEdit/useGetChannelsData';
-
 import UpgradeSettingsTab from './UpgradeSettingsTab';
-
-jest.mock('../Overview/ChannelEdit/useGetChannelsData', () => ({
-  useGetChannelsData: jest.fn(() => ({
-    availableDropdownChannels: [],
-    isLoading: false,
-  })),
-}));
 
 // Mock all external hooks and dependencies
 const mockDispatch = jest.fn();
@@ -89,6 +80,7 @@ const createMockCluster = (overrides = {}) => ({
   state: 'ready',
   status: { configuration_mode: 'full' },
   canEdit: true,
+  canUpdateClusterResource: true,
   subscription: {
     id: 'test-subscription-id',
     plan: { type: 'OSD' },
@@ -115,7 +107,6 @@ const useDeleteScheduleMock = useDeleteSchedule as jest.Mock;
 const useFetchUnmetAcknowledgementsMock = useFetchUnmetAcknowledgements as jest.Mock;
 const useFetchMachineOrNodePoolsMock = useFetchMachineOrNodePools as jest.Mock;
 const useEditClusterMock = useEditCluster as jest.Mock;
-const mockUseGetChannelsData = useGetChannelsData as jest.Mock;
 
 const renderComponent = (cluster = createMockCluster()) =>
   render(<UpgradeSettingsTab cluster={cluster as AugmentedCluster} />);
@@ -409,16 +400,18 @@ describe('<UpgradeSettingsTab>', () => {
   describe('Channel settings', () => {
     beforeEach(() => {
       mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
-      mockUseGetChannelsData.mockReturnValue({
-        availableDropdownChannels: [{ value: 'stable-4.12', label: 'stable-4.12' }],
-        isLoading: false,
-      });
     });
 
     it('renders channel settings card with current channel and edit button', () => {
       renderComponent(
         createMockCluster({
           channel: 'stable-4.12',
+          version: {
+            id: '4.12.0',
+            raw_id: 'openshift-v4.12.0',
+            available_upgrades: ['4.12.1', '4.12.2'],
+            available_channels: ['stable-4.12', 'eus-4.12'],
+          },
         }),
       );
 
@@ -431,19 +424,20 @@ describe('<UpgradeSettingsTab>', () => {
       const { user } = renderComponent(
         createMockCluster({
           channel: 'stable-4.12',
+          version: {
+            id: '4.12.0',
+            raw_id: 'openshift-v4.12.0',
+            available_upgrades: ['4.12.1', '4.12.2'],
+            available_channels: ['stable-4.12', 'eus-4.12'],
+          },
         }),
       );
 
       await user.click(screen.getByTestId('channelModal'));
 
-      const description = await screen.findByText(/Select a new channel for this cluster/);
-      expect(description).toBeInTheDocument();
-
-      const dialog = description.closest('[role="dialog"]');
-      expect(dialog).toBeTruthy();
-      expect(
-        within(dialog as HTMLElement).getByRole('button', { name: 'Save' }),
-      ).toBeInTheDocument();
+      const dialog = await screen.findByRole('dialog', { name: /edit channel/i });
+      expect(dialog).toBeInTheDocument();
+      expect(within(dialog).getByRole('button', { name: 'Save' })).toBeInTheDocument();
     });
   });
 
