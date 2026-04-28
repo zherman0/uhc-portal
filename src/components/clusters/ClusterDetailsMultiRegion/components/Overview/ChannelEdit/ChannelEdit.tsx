@@ -13,7 +13,6 @@ import {
   ModalVariant,
   Spinner,
   StackItem,
-  Title,
 } from '@patternfly/react-core';
 
 import docLinks from '~/common/docLinks.mjs';
@@ -88,9 +87,11 @@ const ChannelEditModal = ({
           aria-labelledby="edit-channel-modal"
           aria-describedby="modal-box-edit-channel"
         >
-          <ModalHeader>
-            <Title headingLevel="h1">Edit channel</Title>
-          </ModalHeader>
+          <ModalHeader
+            labelId="edit-channel-modal"
+            title="Edit channel"
+            description="Select a new channel for this cluster. The cluster will receive upgrades according to the channel you choose."
+          />
           <ModalBody id="modal-box-edit-channel">
             {isError && (
               <StackItem>
