@@ -10,7 +10,6 @@ export const ExcludeNamespaceSelectorsHelpText =
 export const ExcludeNamespaceSelectorsPopover = () => (
   <PopoverHint
     title="Exclude namespace selectors"
-    maxWidth="30rem"
     hint={
       <Content>
         <Content component="p">
