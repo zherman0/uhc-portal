@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { useField } from 'formik';
 
 import {
+  Card,
+  CardBody,
   EmptyState,
   EmptyStateBody,
   EmptyStateVariant,
@@ -171,72 +173,82 @@ export function GroupsApplicationsSelector({
         alignItems={{ default: 'alignItemsFlexStart' }}
       >
         <FlexItem flex={{ default: 'flex_1' }}>
-          <Stack hasGutter>
-            <StackItem>{paneHeading(availableTitle, isRequired, availableTooltip)}</StackItem>
-            <StackItem>
-              <div style={{ minHeight: listMinHeight, overflow: 'auto' }}>
-                <TreeView
-                  data={treeViewData}
-                  hasCheckboxes
-                  isMultiSelectable
-                  onCheck={onTreeCheck}
-                  aria-label={
-                    typeof availableTitle === 'string' ? availableTitle : 'Groups and applications'
-                  }
-                />
-              </div>
-            </StackItem>
-          </Stack>
+          <Card isFullHeight>
+            <CardBody>
+              <Stack hasGutter>
+                <StackItem>{paneHeading(availableTitle, isRequired, availableTooltip)}</StackItem>
+                <StackItem>
+                  <div style={{ minHeight: listMinHeight, overflow: 'auto' }}>
+                    <TreeView
+                      data={treeViewData}
+                      hasCheckboxes
+                      isMultiSelectable
+                      onCheck={onTreeCheck}
+                      aria-label={
+                        typeof availableTitle === 'string'
+                          ? availableTitle
+                          : 'Groups and applications'
+                      }
+                    />
+                  </div>
+                </StackItem>
+              </Stack>
+            </CardBody>
+          </Card>
         </FlexItem>
 
         <FlexItem flex={{ default: 'flex_1' }}>
-          <Stack hasGutter>
-            <StackItem>{paneHeading(chosenTitle, isRequired, chosenTooltip)}</StackItem>
-            <StackItem>
-              {chosenLeafIds.length === 0 ? (
-                <EmptyState
-                  headingLevel="h4"
-                  titleText="No groups or applications selected"
-                  variant={EmptyStateVariant.sm}
-                >
-                  <EmptyStateBody>Select items from the list on the left.</EmptyStateBody>
-                </EmptyState>
-              ) : (
-                <Stack hasGutter>
-                  {selectedByGroup.map(({ groupRootId, groupLabel, leaves }) => (
-                    <div key={groupRootId} style={{ minWidth: 0 }}>
-                      <LabelGroup
-                        categoryName={groupLabel}
-                        numLabels={8}
-                        collapsedText={LABEL_GROUP_OVERFLOW_TEXT}
-                        isClosable={!isDisabled}
-                        closeBtnAriaLabel={`Remove all applications in ${groupLabel}`}
-                        onClick={() => removeGroup(groupRootId)}
-                      >
-                        {leaves.map(({ id, text }) => (
-                          <Label
-                            key={id}
-                            variant="filled"
-                            onClose={
-                              isDisabled
-                                ? undefined
-                                : (e) => {
-                                    e.stopPropagation();
-                                    removeLeaf(id);
-                                  }
-                            }
-                            closeBtnAriaLabel={`Remove ${text}`}
+          <Card isFullHeight>
+            <CardBody>
+              <Stack hasGutter>
+                <StackItem>{paneHeading(chosenTitle, isRequired, chosenTooltip)}</StackItem>
+                <StackItem>
+                  {chosenLeafIds.length === 0 ? (
+                    <EmptyState
+                      headingLevel="h4"
+                      titleText="No groups or applications selected"
+                      variant={EmptyStateVariant.sm}
+                    >
+                      <EmptyStateBody>Select items from the list on the left.</EmptyStateBody>
+                    </EmptyState>
+                  ) : (
+                    <Stack hasGutter>
+                      {selectedByGroup.map(({ groupRootId, groupLabel, leaves }) => (
+                        <div key={groupRootId} style={{ minWidth: 0 }}>
+                          <LabelGroup
+                            categoryName={groupLabel}
+                            numLabels={8}
+                            collapsedText={LABEL_GROUP_OVERFLOW_TEXT}
+                            isClosable={!isDisabled}
+                            closeBtnAriaLabel={`Remove all applications in ${groupLabel}`}
+                            onClick={() => removeGroup(groupRootId)}
                           >
-                            {text}
-                          </Label>
-                        ))}
-                      </LabelGroup>
-                    </div>
-                  ))}
-                </Stack>
-              )}
-            </StackItem>
-          </Stack>
+                            {leaves.map(({ id, text }) => (
+                              <Label
+                                key={id}
+                                variant="filled"
+                                onClose={
+                                  isDisabled
+                                    ? undefined
+                                    : (e) => {
+                                        e.stopPropagation();
+                                        removeLeaf(id);
+                                      }
+                                }
+                                closeBtnAriaLabel={`Remove ${text}`}
+                              >
+                                {text}
+                              </Label>
+                            ))}
+                          </LabelGroup>
+                        </div>
+                      ))}
+                    </Stack>
+                  )}
+                </StackItem>
+              </Stack>
+            </CardBody>
+          </Card>
         </FlexItem>
       </Flex>
     </FormGroup>
