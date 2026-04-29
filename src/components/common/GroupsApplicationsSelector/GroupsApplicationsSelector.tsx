@@ -13,7 +13,6 @@ import {
   Label,
   LabelGroup,
   Stack,
-  StackItem,
   TreeView,
   TreeViewDataItem,
 } from '@patternfly/react-core';
@@ -39,24 +38,6 @@ export type GroupsApplicationsSelectorProps = {
   chosenTooltip?: React.ReactNode;
   listMinHeight?: string;
 };
-
-const paneHeading = (label: React.ReactNode, isRequired?: boolean, tooltip?: React.ReactNode) => (
-  <Flex
-    spaceItems={{ default: 'spaceItemsSm' }}
-    alignItems={{ default: 'alignItemsCenter' }}
-    flexWrap={{ default: 'nowrap' }}
-  >
-    <FlexItem>
-      {label}
-      {isRequired ? <span className="pf-v6-c-form__label-required"> *</span> : null}
-    </FlexItem>
-    {tooltip ? (
-      <FlexItem>
-        <PopoverHint hint={tooltip} />
-      </FlexItem>
-    ) : null}
-  </Flex>
-);
 
 /** PatternFly LabelGroup replaces `${remaining}` in this string when collapsing overflow labels. */
 const LABEL_GROUP_OVERFLOW_PLACEHOLDER = '{remaining}';
@@ -164,8 +145,12 @@ export function GroupsApplicationsSelector({
     helpers.setTouched(true);
   };
 
+  const availableFieldId = `${name}-available`;
+  const chosenFieldId = `${name}-chosen`;
+
+  // Wrap with pf-v6-c-form so label font-weight vars apply (Formik <Form> is not PF Form).
   return (
-    <FormGroup fieldId={name}>
+    <div className="pf-v6-c-form" style={{ display: 'contents' }}>
       <Flex
         direction={{ default: 'row' }}
         flexWrap={{ default: 'nowrap' }}
@@ -175,24 +160,30 @@ export function GroupsApplicationsSelector({
         <FlexItem flex={{ default: 'flex_1' }}>
           <Card isFullHeight>
             <CardBody>
-              <Stack hasGutter>
-                <StackItem>{paneHeading(availableTitle, isRequired, availableTooltip)}</StackItem>
-                <StackItem>
-                  <div style={{ minHeight: listMinHeight, overflow: 'auto' }}>
-                    <TreeView
-                      data={treeViewData}
-                      hasCheckboxes
-                      isMultiSelectable
-                      onCheck={onTreeCheck}
-                      aria-label={
-                        typeof availableTitle === 'string'
-                          ? availableTitle
-                          : 'Groups and applications'
-                      }
-                    />
-                  </div>
-                </StackItem>
-              </Stack>
+              <FormGroup
+                fieldId={availableFieldId}
+                label={availableTitle}
+                labelHelp={availableTooltip ? <PopoverHint hint={availableTooltip} /> : undefined}
+                isRequired={isRequired}
+              >
+                <div
+                  id={availableFieldId}
+                  className="pf-v6-u-mt-md"
+                  style={{ minHeight: listMinHeight, overflow: 'auto' }}
+                >
+                  <TreeView
+                    data={treeViewData}
+                    hasCheckboxes
+                    isMultiSelectable
+                    onCheck={onTreeCheck}
+                    aria-label={
+                      typeof availableTitle === 'string'
+                        ? availableTitle
+                        : 'Groups and applications'
+                    }
+                  />
+                </div>
+              </FormGroup>
             </CardBody>
           </Card>
         </FlexItem>
@@ -200,9 +191,13 @@ export function GroupsApplicationsSelector({
         <FlexItem flex={{ default: 'flex_1' }}>
           <Card isFullHeight>
             <CardBody>
-              <Stack hasGutter>
-                <StackItem>{paneHeading(chosenTitle, isRequired, chosenTooltip)}</StackItem>
-                <StackItem>
+              <FormGroup
+                fieldId={chosenFieldId}
+                label={chosenTitle}
+                labelHelp={chosenTooltip ? <PopoverHint hint={chosenTooltip} /> : undefined}
+                isRequired={isRequired}
+              >
+                <div id={chosenFieldId} className="pf-v6-u-mt-md">
                   {chosenLeafIds.length === 0 ? (
                     <EmptyState
                       headingLevel="h4"
@@ -245,12 +240,12 @@ export function GroupsApplicationsSelector({
                       ))}
                     </Stack>
                   )}
-                </StackItem>
-              </Stack>
+                </div>
+              </FormGroup>
             </CardBody>
           </Card>
         </FlexItem>
       </Flex>
-    </FormGroup>
+    </div>
   );
 }
