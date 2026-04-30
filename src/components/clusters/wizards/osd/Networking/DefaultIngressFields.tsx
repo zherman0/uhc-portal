@@ -131,6 +131,7 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
                       valueInputAriaLabel="Exclude namespace selector values"
                       validateKey={validateExcludeNamespaceSelectorKey}
                       validateValue={validateExcludeNamespaceSelectorValue}
+                      allowKeyWithoutValue={false}
                     />
                   )}
                 </FieldArray>

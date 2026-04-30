@@ -4,7 +4,7 @@ import { Formik, FormikValues } from 'formik';
 import { FieldId } from '~/components/clusters/wizards/common/constants';
 import { checkAccessibility, render, screen } from '~/testUtils';
 
-import FormKeyValueList from '../FormKeyValueList';
+import FormKeyValueList, { type FormKeyValueListProps } from '../FormKeyValueList';
 
 const push = jest.fn();
 const remove = jest.fn();
@@ -21,14 +21,17 @@ describe('<FormKeyValueList />', () => {
     jest.clearAllMocks();
   });
 
-  const ConnectedKeyValueList = ({ fields = [] }: { fields?: NodeLabelRow[] }) => (
+  const ConnectedKeyValueList = ({
+    fields = [],
+    ...listProps
+  }: { fields?: NodeLabelRow[] } & Pick<FormKeyValueListProps, 'allowKeyWithoutValue'>) => (
     <Formik<FormikValues>
       initialValues={{
         [FieldId.NodeLabels]: fields,
       }}
       onSubmit={() => {}}
     >
-      <FormKeyValueList push={push} remove={remove} />
+      <FormKeyValueList push={push} remove={remove} {...listProps} />
     </Formik>
   );
 
@@ -58,6 +61,29 @@ describe('<FormKeyValueList />', () => {
   it('calls push function when adding a new item', async () => {
     const { user } = render(<ConnectedKeyValueList fields={listWithItemsFields} />);
     expect(push).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Add additional label' }));
+
+    expect(push).toHaveBeenCalled();
+  });
+
+  it('does not call push when a row has a key but no value and allowKeyWithoutValue is false', async () => {
+    const { user } = render(
+      <ConnectedKeyValueList
+        fields={[{ key: 'environment', value: '' }]}
+        allowKeyWithoutValue={false}
+      />,
+    );
+
+    const addButton = screen.getByRole('button', { name: 'Add additional label' });
+    expect(addButton).toHaveAttribute('aria-disabled', 'true');
+    await user.click(addButton);
+
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it('allows adding another row when a key has no value if allowKeyWithoutValue is true (default)', async () => {
+    const { user } = render(<ConnectedKeyValueList fields={[{ key: 'environment', value: '' }]} />);
 
     await user.click(screen.getByRole('button', { name: 'Add additional label' }));
 
