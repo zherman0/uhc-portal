@@ -40,6 +40,13 @@ const FormKeyValueListStory = ({
 const meta: Meta<typeof FormKeyValueListStory> = {
   title: 'Shared/FormKeyValueList',
   component: FormKeyValueListStory,
+  argTypes: {
+    allowKeyWithoutValue: {
+      control: 'boolean',
+      description:
+        'When false, Add stays disabled until every row with a key also has a value (e.g. exclude-namespace selectors). When true (default), validators only gate adding.',
+    },
+  },
   decorators: [
     (Story) => (
       <div style={{ margin: '0 .5em 1em', maxWidth: '48rem' }}>
@@ -89,5 +96,23 @@ export const CustomArrayField: Story = {
     valueColumnLabel: 'Value',
     addButtonLabel: 'Add annotation',
     initialRows: [{ key: 'example.com/contact', value: 'support@example.com' }],
+  },
+};
+
+/** Key-only row: Add is enabled so users can add more rows before filling values (e.g. optional labels). */
+export const AllowKeyWithoutValue: Story = {
+  name: 'allowKeyWithoutValue: true',
+  args: {
+    allowKeyWithoutValue: true,
+    initialRows: [{ key: 'fill-value-later', value: '' }],
+  },
+};
+
+/** Key without value: Add stays disabled until the value column is filled (strict key/value pairs). */
+export const RequireValuePerKey: Story = {
+  name: 'allowKeyWithoutValue: false',
+  args: {
+    allowKeyWithoutValue: false,
+    initialRows: [{ key: 'namespace-label', value: '' }],
   },
 };
