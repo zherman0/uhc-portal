@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react';
 import { Field, FieldArray } from 'formik';
 
-import { FormGroup, GridItem } from '@patternfly/react-core';
+import {
+  FormGroup,
+  FormHelperText,
+  GridItem,
+  HelperText,
+  HelperTextItem,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 
 import {
   checkRouteSelectors,
@@ -13,7 +21,10 @@ import {
   ExcludedNamespacesHelpText,
   ExcludedNamespacesPopover,
 } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludedNamespacesPopover';
-import { ExcludeNamespaceSelectorsPopover } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludeNamespaceSelectorsPopover';
+import {
+  ExcludeNamespaceSelectorsHelpText,
+  ExcludeNamespaceSelectorsPopover,
+} from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/ExcludeNamespaceSelectorsPopover';
 import { NamespaceOwnerPolicyPopover } from '~/components/clusters/ClusterDetailsMultiRegion/components/Networking/components/ApplicationIngressCard/NamespaceOwnerPolicyPopover';
 import {
   RouteSelectorsHelpText,
@@ -96,24 +107,35 @@ export const DefaultIngressFields: React.FC<DefaultIngressFieldsProps> = () => {
             label="Exclude namespace selectors"
             labelHelp={<ExcludeNamespaceSelectorsPopover />}
           >
-            <FieldArray
-              name={FieldId.DefaultRouterExcludeNamespaceSelectors}
-              validateOnChange={false}
-            >
-              {(arrayHelpers) => (
-                <FormKeyValueList
-                  push={arrayHelpers.push}
-                  remove={arrayHelpers.remove}
-                  arrayFieldName={FieldId.DefaultRouterExcludeNamespaceSelectors}
-                  valueColumnLabel="Values (comma-separated)"
-                  addButtonLabel="Add selector"
-                  keyInputAriaLabel="Exclude namespace selector key"
-                  valueInputAriaLabel="Exclude namespace selector values"
-                  validateKey={validateExcludeNamespaceSelectorKey}
-                  validateValue={validateExcludeNamespaceSelectorValue}
-                />
-              )}
-            </FieldArray>
+            <Stack hasGutter>
+              <StackItem>
+                <FormHelperText>
+                  <HelperText>
+                    <HelperTextItem>{ExcludeNamespaceSelectorsHelpText}</HelperTextItem>
+                  </HelperText>
+                </FormHelperText>
+              </StackItem>
+              <StackItem>
+                <FieldArray
+                  name={FieldId.DefaultRouterExcludeNamespaceSelectors}
+                  validateOnChange={false}
+                >
+                  {(arrayHelpers) => (
+                    <FormKeyValueList
+                      push={arrayHelpers.push}
+                      remove={arrayHelpers.remove}
+                      arrayFieldName={FieldId.DefaultRouterExcludeNamespaceSelectors}
+                      valueColumnLabel="Values (comma-separated)"
+                      addButtonLabel="Add selector"
+                      keyInputAriaLabel="Exclude namespace selector key"
+                      valueInputAriaLabel="Exclude namespace selector values"
+                      validateKey={validateExcludeNamespaceSelectorKey}
+                      validateValue={validateExcludeNamespaceSelectorValue}
+                    />
+                  )}
+                </FieldArray>
+              </StackItem>
+            </Stack>
           </FormGroup>
         </GridItem>
       ) : null}
