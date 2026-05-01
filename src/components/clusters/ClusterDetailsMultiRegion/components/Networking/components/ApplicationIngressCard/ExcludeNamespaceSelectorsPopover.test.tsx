@@ -35,7 +35,7 @@ describe('ExcludeNamespaceSelectorsPopover', () => {
       expect(dialog).toHaveTextContent('Exclude namespace selectors');
       expect(dialog).toHaveTextContent(/Add one or more label selectors/);
       expect(dialog).toHaveTextContent(/comma-separated list/);
-      expect(dialog).toHaveTextContent(/finance, HR, legal/);
+      expect(dialog).toHaveTextContent(/finance,HR,legal/);
       expect(dialog).toHaveTextContent(/default ingress controller/);
     });
   });

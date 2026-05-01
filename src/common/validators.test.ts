@@ -171,10 +171,10 @@ describe('validators', () => {
       ).toBe('Enter a label key before values.');
     });
 
-    it('returns an error when the key is set but values are empty', () => {
+    it('returns an error when the key is set but values string is empty', () => {
       expect(
         validateExcludeNamespaceSelectorValue(
-          '   ',
+          '',
           { [field]: [{ key: 'env', value: '' }] },
           undefined,
           valueName(0),
@@ -182,11 +182,66 @@ describe('validators', () => {
       ).toBe('Enter at least one value, separated by commas.');
     });
 
+    it('returns an error when the key is set but values are only whitespace', () => {
+      expect(
+        validateExcludeNamespaceSelectorValue(
+          '   ',
+          { [field]: [{ key: 'env', value: '' }] },
+          undefined,
+          valueName(0),
+        ),
+      ).toBe('Each comma-separated value must not have leading or trailing spaces.');
+    });
+
+    it('returns an error when a comma-separated value has surrounding spaces', () => {
+      expect(
+        validateExcludeNamespaceSelectorValue(
+          'prod , staging',
+          { [field]: [{ key: 'env', value: 'prod , staging' }] },
+          undefined,
+          valueName(0),
+        ),
+      ).toBe('Each comma-separated value must not have leading or trailing spaces.');
+    });
+
+    it('returns an error when values start with a comma', () => {
+      expect(
+        validateExcludeNamespaceSelectorValue(
+          ',prod',
+          { [field]: [{ key: 'env', value: ',prod' }] },
+          undefined,
+          valueName(0),
+        ),
+      ).toBe('Do not use a leading comma, trailing comma, or two commas in a row.');
+    });
+
+    it('returns an error when values end with a comma', () => {
+      expect(
+        validateExcludeNamespaceSelectorValue(
+          'prod,',
+          { [field]: [{ key: 'env', value: 'prod,' }] },
+          undefined,
+          valueName(0),
+        ),
+      ).toBe('Do not use a leading comma, trailing comma, or two commas in a row.');
+    });
+
+    it('returns an error when two commas appear without a value between them', () => {
+      expect(
+        validateExcludeNamespaceSelectorValue(
+          'prod,,staging',
+          { [field]: [{ key: 'env', value: 'prod,,staging' }] },
+          undefined,
+          valueName(0),
+        ),
+      ).toBe('Do not use a leading comma, trailing comma, or two commas in a row.');
+    });
+
     it('returns undefined for comma-separated label values', () => {
       expect(
         validateExcludeNamespaceSelectorValue(
-          'finance, hr, legal',
-          { [field]: [{ key: 'department', value: 'finance, hr, legal' }] },
+          'finance,hr,legal',
+          { [field]: [{ key: 'department', value: 'finance,hr,legal' }] },
           undefined,
           valueName(0),
         ),
@@ -195,8 +250,8 @@ describe('validators', () => {
 
     it('returns an error when a comma-separated segment is not a valid label value', () => {
       const message = validateExcludeNamespaceSelectorValue(
-        'good, bad value!',
-        { [field]: [{ key: 'k', value: 'good, bad value!' }] },
+        'good,bad value!',
+        { [field]: [{ key: 'k', value: 'good,bad value!' }] },
         undefined,
         valueName(0),
       );
@@ -233,9 +288,9 @@ describe('validators', () => {
     it('returns an error when a comma-separated list includes a protected namespace (case-insensitive)', () => {
       expect(
         validateExcludeNamespaceSelectorValue(
-          'tenant-a, OPENSHIFT-CONSOLE',
+          'tenant-a,OPENSHIFT-CONSOLE',
           {
-            [field]: [{ key: 'kubernetes.io/metadata.name', value: 'tenant-a, OPENSHIFT-CONSOLE' }],
+            [field]: [{ key: 'kubernetes.io/metadata.name', value: 'tenant-a,OPENSHIFT-CONSOLE' }],
           },
           undefined,
           valueName(0),

@@ -184,6 +184,14 @@ export const Configuration = () => {
         ]);
       }
     }
+    // if the value is default, reset the custom settings
+    if (value === ApplicationIngressType.Default) {
+      setFieldValue(FieldId.DefaultRouterExcludeNamespaceSelectors, []);
+      setFieldValue(FieldId.DefaultRouterExcludedNamespacesFlag, '');
+      setFieldValue(FieldId.DefaultRouterSelectors, '');
+      setFieldValue(FieldId.IsDefaultRouterNamespaceOwnershipPolicyStrict, true);
+      setFieldValue(FieldId.IsDefaultRouterWildcardPolicyAllowed, false);
+    }
   };
 
   const clusterPrivacyOptions: RadioGroupOption[] = [

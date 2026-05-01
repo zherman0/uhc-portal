@@ -1788,6 +1788,16 @@ const validateExcludeNamespaceSelectorValue = (
     return 'Enter a label key before values.';
   }
 
+  const rawValue = value ?? '';
+  const rawSegments = rawValue.split(',');
+  if (rawSegments.some((segment) => segment !== segment.trim())) {
+    return 'Each comma-separated value must not have leading or trailing spaces.';
+  }
+  const isSingleEmptyField = rawSegments.length === 1 && rawValue === '';
+  if (!isSingleEmptyField && rawSegments.some((segment) => segment.trim() === '')) {
+    return 'Do not use a leading comma, trailing comma, or two commas in a row.';
+  }
+
   const parts = stringToArrayTrimmed(value || '');
   if (parts.length === 0) {
     return 'Enter at least one value, separated by commas.';

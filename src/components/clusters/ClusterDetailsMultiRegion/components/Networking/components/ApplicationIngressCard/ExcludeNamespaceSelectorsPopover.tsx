@@ -14,8 +14,9 @@ export const ExcludeNamespaceSelectorsPopover = () => (
       <Content>
         <Content component="p">
           Add one or more label selectors. For each row, enter a label key and a comma-separated
-          list of values (for example: <code>finance, HR, legal</code>). Namespaces whose labels
-          match any of these selectors will be excluded from the default ingress controller.
+          list of values without spaces around commas (for example: <code>finance,HR,legal</code>).
+          Namespaces whose labels match any of these selectors will be excluded from the default
+          ingress controller.
         </Content>
       </Content>
     }
