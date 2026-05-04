@@ -413,6 +413,25 @@ describe('<UpgradeSettingsTab>', () => {
       mockUseFeatureGate([[Y_STREAM_CHANNEL, true]]);
     });
 
+    it('does not render channel settings when Y_STREAM_CHANNEL feature gate is disabled', () => {
+      mockUseFeatureGate([[Y_STREAM_CHANNEL, false]]);
+
+      renderComponent(
+        createMockCluster({
+          channel: 'stable-4.12',
+          version: {
+            id: '4.12.0',
+            raw_id: 'openshift-v4.12.0',
+            available_upgrades: ['4.12.1', '4.12.2'],
+            available_channels: ['stable-4.12', 'eus-4.12'],
+          },
+        }),
+      );
+
+      expect(screen.queryByText('Channel settings')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('channelModal')).not.toBeInTheDocument();
+    });
+
     it('renders channel settings card with current channel and edit button', () => {
       renderComponent(
         createMockCluster({
