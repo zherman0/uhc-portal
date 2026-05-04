@@ -46,8 +46,6 @@ type ChannelEditModalProps = {
 };
 
 type ChannelEditProps = {
-  clusterID: string;
-  channel?: string;
   cluster: AugmentedCluster;
   isClusterDetailsFetching?: boolean;
 };
@@ -136,19 +134,16 @@ const ChannelEditModal = ({
   ) : null;
 };
 
-export const ChannelEdit = ({
-  clusterID,
-  channel,
-  cluster,
-  isClusterDetailsFetching = false,
-}: ChannelEditProps) => {
+export const ChannelEdit = ({ cluster, isClusterDetailsFetching = false }: ChannelEditProps) => {
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isClusterReady = cluster.state === clusterStates.ready;
   const isHypershift = isHypershiftCluster(cluster);
+  const clusterId = cluster.id ?? '';
+  const channel = cluster?.channel ?? '';
   const region = cluster?.subscription?.rh_region_id;
   const { data: schedulesData, isLoading: isSchedulesLoading } = useGetSchedules(
-    clusterID,
+    clusterId,
     isHypershift,
     region,
   );
@@ -159,7 +154,7 @@ export const ChannelEdit = ({
     hasScheduledUpgradePolicy &&
     'Channel editing is not available while an upgrade policy is scheduled.';
   const availableDropdownChannels = channelsToDropdownOptions(cluster.version?.available_channels);
-  const currentChannel = channel ?? '';
+  const currentChannel = channel;
   const hasAlternativeChannelOption = availableDropdownChannels.some(
     (channel) => channel.value !== currentChannel,
   );
@@ -168,11 +163,11 @@ export const ChannelEdit = ({
     <>
       {isModalOpen && (
         <ChannelEditModal
-          clusterID={clusterID}
+          clusterID={clusterId}
           isOpen={isModalOpen}
           optionsDropdownData={availableDropdownChannels}
           onClose={() => setIsModalOpen(false)}
-          channel={channel ?? ''}
+          channel={channel}
         />
       )}
       <DescriptionListGroup>
@@ -193,7 +188,7 @@ export const ChannelEdit = ({
             <Spinner size="sm" aria-label="Loading channel" />
           ) : (
             <>
-              {channel ?? 'N/A'}
+              {channel || 'N/A'}
               {canUpdateClusterResource && hasAlternativeChannelOption ? (
                 <EditButton
                   data-testid="channelModal"

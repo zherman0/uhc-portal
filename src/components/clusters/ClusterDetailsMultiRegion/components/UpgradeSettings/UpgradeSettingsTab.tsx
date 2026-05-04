@@ -490,7 +490,7 @@ const UpgradeSettingsTab = ({ cluster }: UpgradeSettingsTabProps) => {
               <CardTitle>Channel settings</CardTitle>
               <CardBody>
                 <Stack hasGutter>
-                  <ChannelEdit clusterID={clusterID} channel={cluster?.channel} cluster={cluster} />
+                  <ChannelEdit cluster={cluster} />
                 </Stack>
               </CardBody>
             </Card>
