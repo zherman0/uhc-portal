@@ -74,6 +74,11 @@ const meta = {
       control: 'text',
       description: 'Help popover beside the chosen list title.',
     },
+    containerMaxHeight: {
+      control: 'text',
+      description:
+        'Max height of the two-card row; panes scroll internally. Pass empty string to disable.',
+    },
   },
   render: (args: StoryArgs) => <StoryFormikShell {...args} />,
   decorators: [
@@ -122,6 +127,16 @@ export const LabelGroupOverflow: Story = {
   args: {
     treeData: mockLogForwardingGroupTreeLabelGroupOverflow,
     initialSelectedIds: [...mockLogForwardingGroupTreeLabelGroupOverflowAllLeafIds],
+  },
+};
+
+/** Short row height so each card scrolls inside its border (see `containerMaxHeight`). */
+export const ConstrainedMaxHeight350: Story = {
+  name: 'Constrained max height (350px)',
+  args: {
+    containerMaxHeight: '350px',
+    treeData: MOCK_TREE_DATA,
+    initialSelectedIds: ['auth-konnectivity-agent', 'api-audit', 'api-server'],
   },
 };
 
