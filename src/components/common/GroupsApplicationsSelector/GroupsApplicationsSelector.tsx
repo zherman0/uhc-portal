@@ -155,7 +155,7 @@ export function GroupsApplicationsSelector({
         direction={{ default: 'row' }}
         flexWrap={{ default: 'nowrap' }}
         spaceItems={{ default: 'spaceItemsLg' }}
-        alignItems={{ default: 'alignItemsFlexStart' }}
+        alignItems={{ default: 'alignItemsStretch' }}
       >
         <FlexItem flex={{ default: 'flex_1' }}>
           <Card isFullHeight>
