@@ -9,12 +9,9 @@ import { UNSTABLE_CLUSTER_VERSIONS } from '~/queries/featureGates/featureConstan
 import { useFeatureGate } from '~/queries/featureGates/useFetchFeatureGate';
 import { useGlobalState } from '~/redux/hooks';
 import { SubscriptionCommonFieldsCluster_billing_model as SubscriptionCommonFieldsClusterBillingModel } from '~/types/accounts_mgmt.v1';
-import type { Cluster } from '~/types/clusters_mgmt.v1';
 import type { AugmentedCluster } from '~/types/types';
 
-export const useGetChannelGroupsData = (
-  cluster: AugmentedCluster & Partial<Pick<Cluster, 'billing_model'>>,
-) => {
+export const useGetChannelGroupsData = (cluster: AugmentedCluster) => {
   const canUpdateClusterResource = !!cluster.canUpdateClusterResource;
   const isRosa = isROSA(cluster);
   const isHCP = isHypershiftCluster(cluster);
