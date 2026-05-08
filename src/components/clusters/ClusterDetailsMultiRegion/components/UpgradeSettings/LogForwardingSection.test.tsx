@@ -315,4 +315,115 @@ describe('LogForwardingSection', () => {
 
     expect(screen.getByRole('button', { name: 'Add configuration' })).toBeDisabled();
   });
+
+  it('shows loading spinner while forwarders are loading', () => {
+    mockUseFetchLogForwarders.mockReturnValue({
+      data: [],
+      isLoading: true,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByLabelText('Loading log forwarding configuration')).toBeInTheDocument();
+  });
+
+  it('shows error alert when forwarders fail to load', () => {
+    mockUseFetchLogForwarders.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: true,
+      error: { errorMessage: 'Request failed' },
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByText('Could not load control plane log forwarding')).toBeInTheDocument();
+    expect(screen.getByText('Request failed')).toBeInTheDocument();
+  });
+
+  it('shows a message when forwarders have no supported destinations', () => {
+    mockUseFetchLogForwarders.mockReturnValue({
+      data: [{ id: 'lf-unknown-1', applications: ['orphan-app'] }],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(
+      screen.getByText('No supported log forwarding destinations are configured.'),
+    ).toBeInTheDocument();
+  });
+
+  it('shows CloudWatch forwarder details', () => {
+    mockUseFetchLogForwarders.mockReturnValue({
+      data: [cloudWatchForwarder],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByText('CloudWatch')).toBeInTheDocument();
+    expect(screen.getByText(cloudWatchLogGroupName)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, element) =>
+          !!element &&
+          element.classList.contains('pf-v6-c-truncate') &&
+          element.textContent === cloudWatchRoleArn,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('opens edit modal from card kebab menu', async () => {
+    mockUseFetchLogForwarders.mockReturnValue({
+      data: [
+        {
+          id: 'lf-s3-1',
+          s3: { bucket_name: 'test-bucket-1' },
+          applications: ['api-audit'],
+          status: { state: 'ready' },
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    const { user } = render(<LogForwardingSection cluster={mockCluster} />);
+
+    await user.click(screen.getByRole('button', { name: 'Amazon S3 configuration actions' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Edit configuration' }));
+
+    expect(screen.getByTestId('add-edit-s3-edit')).toBeInTheDocument();
+  });
+
+  it('opens edit modal for CloudWatch from card kebab menu', async () => {
+    mockUseFetchLogForwarders.mockReturnValue({
+      data: [cloudWatchForwarder],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    const { user } = render(<LogForwardingSection cluster={mockCluster} />);
+
+    await user.click(screen.getByRole('button', { name: 'CloudWatch configuration actions' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Edit configuration' }));
+
+    expect(screen.getByTestId('add-edit-cloudwatch-edit')).toBeInTheDocument();
+  });
+
+  it('disables add configuration when cluster is hibernating', () => {
+    mockIsHibernating.mockReturnValue(true);
+
+    render(<LogForwardingSection cluster={mockCluster} />);
+
+    expect(screen.getByRole('button', { name: 'Add configuration' })).toBeDisabled();
+  });
 });
