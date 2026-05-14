@@ -1,3 +1,4 @@
+import type { JsonValue } from './unmetAcknowledgementErrorDetails';
 import { resolveUnmetAcknowledgementErrorDetailsForUi } from './unmetAcknowledgementErrorDetails';
 
 describe('resolveUnmetAcknowledgementErrorDetailsForUi', () => {
@@ -51,7 +52,12 @@ describe('resolveUnmetAcknowledgementErrorDetailsForUi', () => {
     });
 
     it('leaves non-object and array detail entries unchanged', () => {
-      const details = [null, 'raw-string', ['nested'], { other: 'no-error-key' }] as unknown[];
+      const details = [
+        null,
+        'raw-string',
+        ['nested'],
+        { other: 'no-error-key' },
+      ] as readonly JsonValue[];
       expect(resolveUnmetAcknowledgementErrorDetailsForUi(false, details, 'top')).toEqual(details);
     });
   });
@@ -106,8 +112,29 @@ describe('resolveUnmetAcknowledgementErrorDetailsForUi', () => {
         'not-an-object',
         ['array-row'],
         { not_validation: 'only other keys' },
-      ] as unknown[];
+      ] as readonly JsonValue[];
       expect(resolveUnmetAcknowledgementErrorDetailsForUi(true, sparse, 'ignored')).toEqual(sparse);
+    });
+
+    it('splits bundled validation_error_* rows even when useAggregatedShape is false (gate off / loading)', () => {
+      const bundled = [
+        {
+          validation_error_1: {
+            reason: 'First issue',
+            details: [{ Error_Key: 'VersionNotSupportedByAccountRoleTag' }],
+            timestamp: '0001-01-01T00:00:00Z',
+          },
+          validation_error_2: {
+            reason: 'Second issue',
+            details: [{ Error_Key: 'SecondMockErrorKey' }],
+            timestamp: '0001-01-01T00:00:00Z',
+          },
+        },
+      ];
+      expect(resolveUnmetAcknowledgementErrorDetailsForUi(false, bundled, 'ignored')).toEqual([
+        bundled[0].validation_error_1,
+        bundled[0].validation_error_2,
+      ]);
     });
 
     it('returns one row unchanged when a detail has only one validation_error_* key among other keys', () => {

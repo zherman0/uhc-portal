@@ -7,6 +7,7 @@ import { getClusterService, getClusterServiceForRegion } from '~/services/cluste
 import { UpgradePolicy } from '~/types/clusters_mgmt.v1';
 import { ErrorState } from '~/types/types';
 
+import type { JsonValue } from './unmetAcknowledgementErrorDetails';
 import { resolveUnmetAcknowledgementErrorDetailsForUi } from './unmetAcknowledgementErrorDetails';
 import { refetchSchedules } from './useGetSchedules';
 
@@ -18,9 +19,9 @@ import { refetchSchedules } from './useGetSchedules';
   2) If there are version gates, we get a 400 error response with the version gates in the error details.
   We then need to get the VersionGates from the error details and return them in the data property.
 
-  For other errors, dry-run `details` follow one of two shapes (see `unmetAcknowledgementErrorDetails`):
-  non-aggregated (Error_Key rows + message on top-level `reason`) vs aggregated (nested validation_error_N).
-  AGGREGATE_UPGRADE_VALIDATION_ERRORS selects which branch runs.
+  Other dry-run errors: see `__fixtures__/upgrade_policies.json` — version-gate-only (handled above),
+  non-aggregated `Error_Key` rows + top-level `reason`, or aggregated `validation_error_*` payloads.
+  `AGGREGATE_UPGRADE_VALIDATION_ERRORS` selects non-aggregated vs aggregated normalization.
   ****************************************** */
 export const useFetchUnmetAcknowledgements = (
   clusterID: string,
@@ -66,7 +67,7 @@ export const useFetchUnmetAcknowledgements = (
 
     const normalizedErrorDetails = resolveUnmetAcknowledgementErrorDetailsForUi(
       aggregateUpgradeValidationErrors,
-      errorDetails,
+      errorDetails as readonly JsonValue[],
       formattedError.error?.reason ?? '',
     );
 

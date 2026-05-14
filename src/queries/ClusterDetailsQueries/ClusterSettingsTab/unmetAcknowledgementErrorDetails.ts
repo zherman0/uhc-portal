@@ -1,27 +1,94 @@
 /**
  * Normalization for upgrade dry-run `error.details` from POST upgrade_policies (dryRun).
- * Two stable shapes (see `__fixtures__/upgrade_policies.json`: `nonAggregatedXhr` vs `aggregatedValidation`):
+ * Shapes are documented in `__fixtures__/upgrade_policies.json`:
  *
- * - **Non-aggregated**: `details` is `[{ Error_Key: string }]`; the human message is only on the
- *   error object’s top-level `reason`. We copy that onto each detail row for the UI.
- * - **Aggregated**: each `details[i]` is either one validation wrapper (`aggregatedValidation`) or one
- *   object with several `validation_error_*` keys. When there is more than one such key, we map to
- *   those values so the alert can list each validation separately.
+ * 1. **Version gates only** — handled in `useFetchUnmetAcknowledgements` before this module runs.
+ * 2. **Non-aggregated** — `details` is `[{ Error_Key: string }]`, message only on the error’s top-level `reason`.
+ * 3. **Aggregated** — each row is either a single `validation_error_N` wrapper or one object bundling several
+ *    `validation_error_*` keys; multiple keys are expanded to one list item per nested payload.
+ *
+ * Bundled rows (more than one `validation_error_*` on a single object) are **always** expanded before the
+ * non-aggregated merge step. `AGGREGATE_UPGRADE_VALIDATION_ERRORS` still selects aggregated vs non-aggregated
+ * behavior for everything else, but the list UI needs one array element per validation so `UnmetAcknowledgementsErrorAlert`
+ * can map over bullets even when the gate reads `false` (defaults false while loading).
  */
 
-const mergeTopLevelReasonIntoErrorKeyRow = (detail: unknown, topLevelReason: string): unknown => {
-  if (!detail || typeof detail !== 'object' || Array.isArray(detail)) {
+/** JSON subset used for API `details` rows (avoids `unknown` while staying compatible with axios payloads). */
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue =
+  | JsonPrimitive
+  | readonly JsonValue[]
+  | { readonly [key: string]: JsonValue };
+
+export type UpgradeDryRunAggregatedNestedDetail = {
+  readonly Error_Key: string;
+};
+
+/** Inner payload under each `validation_error_N` key (aggregated shape). */
+export type UpgradeDryRunAggregatedValidationPayload = {
+  readonly reason: string;
+  readonly details: readonly UpgradeDryRunAggregatedNestedDetail[];
+  readonly timestamp: string;
+};
+
+/** Non-aggregated row after copying the parent error `reason` onto the row for the UI. */
+export type NormalizedNonAggregatedErrorDetail = {
+  readonly Error_Key: string;
+  readonly kind: 'Error';
+  readonly reason: string;
+  readonly [extra: string]: JsonValue;
+};
+
+export type UnmetAcknowledgementUiErrorDetail = JsonValue;
+
+const isJsonObject = (value: JsonValue): value is { readonly [key: string]: JsonValue } =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const isValidationErrorPropertyKey = (key: string): boolean => key.startsWith('validation_error_');
+
+const getValidationErrorEntries = (record: {
+  readonly [key: string]: JsonValue;
+}): ReadonlyArray<readonly [string, JsonValue]> =>
+  Object.entries(record).filter(([key]) => isValidationErrorPropertyKey(key));
+
+const mergeTopLevelReasonIntoErrorKeyRow = (
+  detail: JsonValue,
+  topLevelReason: string,
+): UnmetAcknowledgementUiErrorDetail => {
+  if (!isJsonObject(detail)) {
     return detail;
   }
-  const d = detail as Record<string, unknown>;
-  if (!Object.prototype.hasOwnProperty.call(d, 'Error_Key') || typeof d.reason === 'string') {
+  if (
+    !Object.prototype.hasOwnProperty.call(detail, 'Error_Key') ||
+    typeof detail.Error_Key !== 'string'
+  ) {
     return detail;
   }
-  return {
-    ...d,
+  if (typeof detail.reason === 'string') {
+    return detail;
+  }
+  const merged: NormalizedNonAggregatedErrorDetail = {
+    ...detail,
     kind: 'Error',
     reason: topLevelReason,
+    Error_Key: detail.Error_Key,
   };
+  return merged;
+};
+
+const expandAggregatedDetailRow = (
+  detail: JsonValue,
+): readonly UnmetAcknowledgementUiErrorDetail[] => {
+  if (!isJsonObject(detail)) {
+    return [detail];
+  }
+  const validationEntries = getValidationErrorEntries(detail);
+
+  if (validationEntries.length > 1) {
+    return validationEntries.map(([, value]) => value);
+  }
+
+  return [detail];
 };
 
 /**
@@ -31,29 +98,18 @@ const mergeTopLevelReasonIntoErrorKeyRow = (detail: unknown, topLevelReason: str
  */
 export const resolveUnmetAcknowledgementErrorDetailsForUi = (
   useAggregatedShape: boolean,
-  details: unknown[] | undefined,
+  details: readonly JsonValue[] | undefined,
   topLevelReason: string,
-): unknown[] => {
+): readonly UnmetAcknowledgementUiErrorDetail[] => {
   if (!details?.length) {
     return [];
   }
+
+  const expandedRows = details.flatMap((row) => expandAggregatedDetailRow(row));
+
   if (useAggregatedShape) {
-    // flatMap: bundled `validation_error_*` keys → one list row per payload.
-    return details.flatMap((detail) => {
-      if (!detail || typeof detail !== 'object' || Array.isArray(detail)) {
-        return [detail];
-      }
-      const record = detail as Record<string, unknown>;
-      const validationEntries = Object.entries(record).filter(([key]) =>
-        key.startsWith('validation_error_'),
-      );
-
-      if (validationEntries.length > 1) {
-        return validationEntries.map(([, value]) => value);
-      }
-
-      return [detail];
-    });
+    return expandedRows;
   }
-  return details.map((detail) => mergeTopLevelReasonIntoErrorKeyRow(detail, topLevelReason));
+
+  return expandedRows.map((row) => mergeTopLevelReasonIntoErrorKeyRow(row, topLevelReason));
 };
