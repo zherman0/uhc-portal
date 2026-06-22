@@ -22,6 +22,7 @@ import { trackEvents } from '~/common/analytics';
 import { getQueryParam } from '~/common/queryHelpers';
 import { Link } from '~/common/routing';
 import { hasSecurityGroupIds } from '~/common/securityGroupsHelpers';
+import { knownProducts } from '~/common/subscriptionTypes';
 import AIClusterStatus from '~/components/AIComponents/AIClusterStatus';
 import { OverviewBillingAccount } from '~/components/clusters/ClusterDetailsMultiRegion/components/Overview/BillingAccount/OverviewBillingAccount';
 import clusterStates, {
@@ -71,6 +72,12 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
   const clusterRawVersionID = cluster?.version?.raw_id;
   const isAutoNodeAllowed = useFeatureGate(ENABLE_AUTO_NODE) && isHypershift;
   const isHcpLogForwardingEnabled = useFeatureGate(HCP_LOG_FORWARDING);
+  const isArchived =
+    get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Archived ||
+    get(cluster, 'subscription.status', false) === SubscriptionCommonFieldsStatus.Deprovisioned;
+  const isAROCluster = get(cluster, 'subscription.plan.type', '') === knownProducts.ARO;
+  const displayUpgradeSettingsTab =
+    cluster.managed && !isAROCluster && cluster.canEdit && !isArchived;
   const showControlPlaneLogForwarding = isHypershift && isROSACluster && isHcpLogForwardingEnabled;
   const track = useAnalytics();
   const dispatch = useDispatch();
@@ -566,9 +573,11 @@ function DetailsRight({ cluster, hasAutoscaleCluster, isDeprovisioned, clusterDe
           <DescriptionListTerm>
             <Flex gap={{ default: 'gapSm' }}>
               Control plane log forwarding
-              <Button variant="link" component={Link} to={{ hash: '#updateSettings' }}>
-                View details
-              </Button>
+              {displayUpgradeSettingsTab && (
+                <Button variant="link" component={Link} to={{ hash: '#updateSettings' }}>
+                  View details
+                </Button>
+              )}
             </Flex>
           </DescriptionListTerm>
           <DescriptionListDescription data-testid="controlPlaneLogForwardingDescription">
